@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Studenti u Vue.js tehnologiji</title>
+<link href="css/bootstrap.min.css" rel="stylesheet" />
+<link href="css/main.css" rel="stylesheet" />
+</head>
+<body>
+	<div id="main" class="limiter">
+		<router-view :key="$route.fullPath"></router-view>
+		<unos-apartmana></unos-apartmana>
+	</div>
+
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<script src="js/vue.js"></script>
+	<script src="js/axios.js"></script>
+	<script src="js/vue-router.js"></script>
+	<script src="app/login.js"></script>
+	<script src="app/unos-apartmana.js"></script>
+	<script src="app/app.js"></script>
+</body>
+</html>

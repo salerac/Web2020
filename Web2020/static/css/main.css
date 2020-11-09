@@ -1,0 +1,109 @@
+@font-face {
+	font-family: Poppins-Medium;
+	src: url(Poppins-Medium.ttf);
+}
+@font-face{
+	font-family: Poppins-Bold;
+	src: url(Poppins-Bold.ttf);
+}
+body, html
+{
+height: 100%;
+margin: 0;
+padding: 0;
+}
+.form-control-error{
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px red;
+}
+.form-control-good:focus {
+	border-color: blue;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px blue;
+  }
+ .form-control-error:focus {
+	border-color:red;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px red;
+  }
+.container-login {
+	width: 100%;  
+	height: 100vh;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	padding: 15px;
+	background: #9052c4;
+	background: linear-gradient(-135deg, #c852c3, #4152d3);
+  }
+  .limiter {
+	width: 100%;
+	margin: 0 auto;
+  }
+  .wrap-login {
+	width: 20%;
+	background: #fff;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	padding: 50px 75px 50px 75px;
+  }
+  .login-span{
+	font-family: Poppins-Bold;
+	font-size: 24px;
+	color: #333333;
+	line-height: 1.2;
+	text-align: center;
+  
+	width: 100%;
+	display: block;
+	padding-bottom: 54px;
+  }
+  .login-input {
+	font-family: Poppins-Medium;
+	font-size: 15px;
+	line-height: 1.5;
+	color: #666666;
+	display: block;
+	width: 100%;
+	background: #e6e6e6;
+	height: 50px;
+	border-radius: 25px;
+	padding: 0 30px 0 20px;
+  }
+  .login-btn {
+	font-family: Poppins-Medium;
+	font-size: 15px;
+	line-height: 1.5;
+	color: #fff;
+	text-transform: uppercase;
+	width: 100%;
+	height: 50px;
+	border-radius: 25px;
+	border-color: gray;
+	background: #57b846;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 25px;
+	transition: all 0.4s;
+  }
+  .login-btn:hover{
+	background: #333333;
+  }
+  .symbol {
+	font-size: 15px;
+	display: flex;
+	align-items: center;
+	position: relative;
+	border-radius: 25px;
+	width: 30%;
+	height: 25px;
+	padding-left: 35px;
+	pointer-events: none;
+	color: #666666;
+	transition: all 0.4s;
+  }
+  .error-message {
+	  color: red
+  }
