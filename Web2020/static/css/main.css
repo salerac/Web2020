@@ -6,11 +6,24 @@
 	font-family: Poppins-Bold;
 	src: url(Poppins-Bold.ttf);
 }
+@font-face{
+	font-family: Poppins-Light;
+	src: url(Poppins-Light.ttf);
+}
 body, html
 {
-height: 100%;
-margin: 0;
-padding: 0;
+	font-family: Poppins-Light;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+.highlighted-input{
+	border-color: blue;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px blue;
+}
+.form-control:focus{
+	border-color: blue;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px blue;
 }
 .form-control-error{
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px red;
@@ -22,6 +35,25 @@ padding: 0;
  .form-control-error:focus {
 	border-color:red;
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px red;
+  }
+  .slika-div:hover{
+	border-color: blue;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 5px blue;
+  }
+  .slikax:hover{
+	  cursor: pointer;
+  }
+  .plusminus:hover{
+	  cursor: pointer;
+  }
+  .pointer-cursor:hover{
+	  cursor: pointer
+  }
+  .fade-enter-active, .fade-leave-active {
+	transition: opacity .3s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+	opacity: 0;
   }
 .container-login {
 	width: 100%;  
@@ -106,4 +138,17 @@ padding: 0;
   }
   .error-message {
 	  color: red
+  }
+
+  .height-row{
+	  height: 100px;
+  }
+  .height-row:hover{
+	  cursor: pointer;
+  }
+  #map {
+	height: 100%;
+  }
+  .brojac {
+	width:200px;
   }

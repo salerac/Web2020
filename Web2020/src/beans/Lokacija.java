@@ -3,15 +3,28 @@ package beans;
 public class Lokacija {
 	
 	private int id;
-	private double duzinka;
+	private double duzina;
 	private double sirina;
 	private int adresaId;
 	
-	public double getDuzinka() {
-		return duzinka;
+	public Lokacija() {
+		
 	}
-	public void setDuzinka(double duzinka) {
-		this.duzinka = duzinka;
+	public Lokacija(int adresaId, double duzina, double sirina) {
+		setAdresa(adresaId);
+		setDuzina(duzina);
+		setSirina(sirina);
+	}
+	public Lokacija(Lokacija l) {
+		setAdresa(l.getAdresa());
+		setDuzina(l.getDuzina());
+		setSirina(l.getSirina());
+	}
+	public double getDuzina() {
+		return duzina;
+	}
+	public void setDuzina(double duzinka) {
+		this.duzina = duzinka;
 	}
 	public int getId() {
 		return id;

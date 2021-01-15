@@ -1,11 +1,11 @@
 package beans;
 
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
 
 public class Apartman {
 	
@@ -14,17 +14,38 @@ public class Apartman {
 	private int brojSoba;
 	private int brojGostiju;
 	private int lokacijaId;
-	private ArrayList<LocalDate> datumi = new ArrayList<LocalDate>();
+	private ArrayList<Long> datumi = new ArrayList<Long>();
 	private HashMap<Date, Boolean> dostupnost = new HashMap<Date, Boolean>();
 	private String domacinUsername;
 	private ArrayList<String> komentariId;
-	private String imagePath;
+	private ArrayList<String> slike;
 	private double cenaPoNoci;
-	private LocalTime vremePrijave;
-	private LocalTime vremeOdjave;
+	private int vremePrijave;
+	private int vremeOdjave;
 	private boolean status;
 	private ArrayList<Integer> sadrzajiId;
 	private ArrayList<Integer> rezervacijeId;
+	
+	
+	public Apartman(boolean tip, int brojSoba, int brojGostiju, int lokacijaId, ArrayList<Long> datumi,
+			ArrayList<String> slike, double cenaPoNoci, int vremePrijave, int vremeOdjave, 
+			ArrayList<Integer> sadrzajiId) {
+		super();
+		this.tip = tip;
+		this.brojSoba = brojSoba;
+		this.brojGostiju = brojGostiju;
+		this.lokacijaId = lokacijaId;
+		this.datumi = datumi;
+		this.slike = slike;
+		this.cenaPoNoci = cenaPoNoci;
+		this.vremePrijave = vremePrijave;
+		this.vremeOdjave = vremeOdjave;
+		this.sadrzajiId = sadrzajiId;
+	}
+
+	public Apartman() {
+		
+	}
 	
 	public int getId() {
 		return id;
@@ -56,10 +77,10 @@ public class Apartman {
 	public void setLokacijaId(int lokacijaId) {
 		this.lokacijaId = lokacijaId;
 	}
-	public ArrayList<LocalDate> getDatumi() {
+	public ArrayList<Long> getDatumi() {
 		return datumi;
 	}
-	public void setDatumi(ArrayList<LocalDate> datumi) {
+	public void setDatumi(ArrayList<Long> datumi) {
 		this.datumi = datumi;
 	}
 	public HashMap<Date, Boolean> getDostupnost() {
@@ -80,11 +101,11 @@ public class Apartman {
 	public void setKomentariId(ArrayList<String> komentariId) {
 		this.komentariId = komentariId;
 	}
-	public String getImagePath() {
-		return imagePath;
+	public ArrayList<String> getSlike() {
+		return slike;
 	}
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setSlike(ArrayList<String> slike) {
+		this.slike = slike;
 	}
 	public double getCenaPoNoci() {
 		return cenaPoNoci;
@@ -92,16 +113,16 @@ public class Apartman {
 	public void setCenaPoNoci(double cenaPoNoci) {
 		this.cenaPoNoci = cenaPoNoci;
 	}
-	public LocalTime getVremePrijave() {
+	public int getVremePrijave() {
 		return vremePrijave;
 	}
-	public void setVremePrijave(LocalTime vremePrijave) {
+	public void setVremePrijave(int vremePrijave) {
 		this.vremePrijave = vremePrijave;
 	}
-	public LocalTime getVremeOdjave() {
+	public int getVremeOdjave() {
 		return vremeOdjave;
 	}
-	public void setVremeOdjave(LocalTime vremeOdjave) {
+	public void setVremeOdjave(int vremeOdjave) {
 		this.vremeOdjave = vremeOdjave;
 	}
 	public boolean isStatus() {

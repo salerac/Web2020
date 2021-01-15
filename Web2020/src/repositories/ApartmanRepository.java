@@ -26,7 +26,9 @@ public class ApartmanRepository {
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));
 		apartmani = new ArrayList<Apartman>();
 		Type collectionType = new TypeToken<ArrayList<Apartman>>(){}.getType();
-		apartmani = gson.fromJson(reader, collectionType);
+		if(gson.fromJson(reader, collectionType) != null) {
+			apartmani = gson.fromJson(reader, collectionType);
+		}
 		reader.close();
 	}
 	public static void saveApartmani() throws IOException {
