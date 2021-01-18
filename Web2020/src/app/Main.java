@@ -42,6 +42,7 @@ public class Main {
 		post("/login", LoginService.handleLogin);
 		post("/addApartman", ApartmanService.addApartman);
 		post("/addSadrzaj", SadrzajService.addSadrzaj);
+		post("/searchApartmani",ApartmanService.searchApartman);
 		get("/getSadrzaji", SadrzajService.getSadrzaji);
 	}
 

@@ -5,18 +5,21 @@
 	<title>Studenti u Vue.js tehnologiji</title>
 <link href="css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="css/CalendarPicker.style.css" />
+<link rel="stylesheet" type="text/css" href="css/jsCalendar.css">
 <link href="css/leaflet.css" rel="stylesheet" />
 <link href="css/main.css" rel="stylesheet" />
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 </head>
 <body>
 	<div id="main" class="limiter">
-		<router-view :key="$route.fullPath"></router-view>
-		<unos-apartmana></unos-apartmana>
+		<keep-alive>
+			<router-view :key="$route.fullPath"></router-view>
+		</keep-alive>
 	</div>
 
 	<script src="js/bootstrap.bundle.min.js"></script>
 	<script src="js/CalendarPicker.js"></script>
+	<script type="text/javascript" src="js/jsCalendar.js"></script>
 	<script src="js/vue.js"></script>
 	<script src="js/axios.js"></script>
 	<script src="js/vue-router.js"></script>
@@ -30,6 +33,9 @@
 	<script src="app/unos-apartmana-navigacija.js"></script>
 	<script src="app/sadrzaj.js"></script>
 	<script src="app/unos-vremena-datuma.js"></script>
+	<script src="app/landing-page.js"></script>
+	<script src="app/pregled-apartmana.js"></script>
+	<script src="app/aparman-detalji-mini.js"></script>
 	<script src="app/app.js"></script>
 </body>
 </html>

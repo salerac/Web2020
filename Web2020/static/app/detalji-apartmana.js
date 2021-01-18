@@ -1,6 +1,7 @@
 Vue.component('detalji-apartmana',{
     data: function(){
         return {
+            slike1: [],
             slike: [],
             path: null,
             display: 'height:25px;width:25px;display:none',
@@ -56,7 +57,7 @@ Vue.component('detalji-apartmana',{
             </div>
         </div>
         <div class="row m-3 ml-0 mr-0">
-            <div class="d-inline border border-primary p-1 mr-1 slika-div" v-for="(slika,index) in slike" style="height:140px;width:31.7%;" v-on:mouseover="prikaziX(index)" v-on:mouseleave="sakrijX(index)">
+            <div class="d-inline border border-primary p-1 mr-1 slika-div" v-for="(slika,index) in slike1" style="height:140px;width:31.7%;" v-on:mouseover="prikaziX(index)" v-on:mouseleave="sakrijX(index)">
                 <img :data-id="index" :ref="index" src="/icons/close.png" class="rounded-circle border border-dark position-absolute slikax" style="height:25px;width:25px;display:none;" v-on:click="ukloniSliku">
                 <img :src="slika" style="width:100%;height:100%;">
             </div>
@@ -67,8 +68,13 @@ Vue.component('detalji-apartmana',{
     `,
     methods: {
         dodajSliku: function(e){
-            this.slike.push(URL.createObjectURL(e.target.files[0]));
-            document.getElementById("customFile").value = "";
+            this.slike1.push(URL.createObjectURL(e.target.files[0]));
+            var reader = new FileReader();
+            reader.onloadend = () => {
+                console.log('RESULT', reader.result);
+                this.slike.push(reader.result);
+            }
+            reader.readAsDataURL(e.target.files[0]);
         },
         prikaziX: function(index){ 
             this.$refs[index][0].style.display = "block";

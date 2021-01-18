@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import beans.Apartman;
 import beans.Sadrzaj;
 
 public class SadrzajRepository {
@@ -23,6 +24,13 @@ public class SadrzajRepository {
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));
 		Type collectionType = new TypeToken<ArrayList<Sadrzaj>>(){}.getType();
 		sadrzaji = gson.fromJson(reader, collectionType);
+		if(sadrzaji == null) {
+			sadrzaji = new ArrayList<Sadrzaj>();
+			globalId = 0;
+		}
+		else {
+		globalId = sadrzaji.get(sadrzaji.size() - 1).getId() + 1;
+		}
 		reader.close();
 	}
 	public static void saveSadrzaji() throws IOException {

@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import beans.Adresa;
+import beans.Apartman;
 
 public class AdresaRepository {
 	
@@ -22,9 +23,15 @@ public class AdresaRepository {
 	
 	public static void loadAdrese() throws IOException {
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));
-		adrese = new ArrayList<Adresa>();
 		Type collectionType = new TypeToken<ArrayList<Adresa>>(){}.getType();
 		adrese = gson.fromJson(reader, collectionType);
+		if(adrese == null) {
+			adrese = new ArrayList<Adresa>();
+			globalId = 0;
+		}
+		else {
+		globalId = adrese.get(adrese.size() - 1).getId() + 1;
+		}
 		reader.close();
 	}
 	public static void saveAdrese() throws IOException {
@@ -42,5 +49,14 @@ public class AdresaRepository {
 	
 	public static ArrayList<Adresa> getAdrese(){
 		return adrese;
+	}
+	
+	public static Adresa getAdresaById(int id) {
+		for(int i = 0; i < adrese.size(); i++) {
+			if(adrese.get(i).getId() == id) {
+				return adrese.get(i);
+			}
+		}
+		return null;
 	}
 }

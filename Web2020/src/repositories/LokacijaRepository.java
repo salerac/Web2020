@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import beans.Apartman;
 import beans.Lokacija;
 
 public class LokacijaRepository {
@@ -21,9 +22,15 @@ public class LokacijaRepository {
 	
 	public static void loadLokacije() throws IOException {
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));
-		lokacije = new ArrayList<Lokacija>();
 		Type collectionType = new TypeToken<ArrayList<Lokacija>>(){}.getType();
 		lokacije = gson.fromJson(reader, collectionType);
+		if(lokacije == null) {
+			lokacije = new ArrayList<Lokacija>();
+			globalId = 0;
+		}
+		else {
+		globalId = lokacije.get(lokacije.size() - 1).getId() + 1;
+		}
 		reader.close();
 	}
 	public static void saveLokacije() throws IOException {
@@ -41,5 +48,13 @@ public class LokacijaRepository {
 	
 	public static ArrayList<Lokacija> getLokacija(){
 		return lokacije;
+	}
+	public static Lokacija getLokacijaById(int id) {
+		for(int i = 0; i < lokacije.size(); i++) {
+			if(lokacije.get(i).getId() == id) {
+				return lokacije.get(i);
+			}
+		}
+		return null;
 	}
 }

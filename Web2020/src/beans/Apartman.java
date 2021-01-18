@@ -15,7 +15,6 @@ public class Apartman {
 	private int brojGostiju;
 	private int lokacijaId;
 	private ArrayList<Long> datumi = new ArrayList<Long>();
-	private HashMap<Date, Boolean> dostupnost = new HashMap<Date, Boolean>();
 	private String domacinUsername;
 	private ArrayList<String> komentariId;
 	private ArrayList<String> slike;
@@ -82,12 +81,6 @@ public class Apartman {
 	}
 	public void setDatumi(ArrayList<Long> datumi) {
 		this.datumi = datumi;
-	}
-	public HashMap<Date, Boolean> getDostupnost() {
-		return dostupnost;
-	}
-	public void setDostupnost(HashMap<Date, Boolean> dostupnost) {
-		this.dostupnost = dostupnost;
 	}
 	public String getDomacinUsername() {
 		return domacinUsername;
