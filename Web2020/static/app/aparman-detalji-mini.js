@@ -7,7 +7,7 @@ Vue.component('apartman-detalji-mini', {
         }
     },
     template: /*html*/`
-    <div class="container">
+    <div class="container" v-on:click="goToApartman">
         <div class="row">
             <div class="d-inline p-1 mr-1">
                 <img :src="$attrs.apartman.slike[0]" class="pregled-slike" style="width:100%;height:100%">
@@ -47,6 +47,9 @@ Vue.component('apartman-detalji-mini', {
     methods: {
         src: function(){
             return this.apartman.slike[0];
+        },
+        goToApartman: function(){
+            this.$router.push({name: 'apartman', query: {id: this.$attrs.apartman.id}});
         }
     }
 })

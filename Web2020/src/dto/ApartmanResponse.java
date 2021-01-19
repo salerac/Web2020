@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import beans.Apartman;
 import beans.Lokacija;
+import beans.Sadrzaj;
 
 public class ApartmanResponse {
 	
@@ -20,9 +21,9 @@ public class ApartmanResponse {
 	private int vremePrijave;
 	private int vremeOdjave;
 	private boolean status;
-	private ArrayList<Integer> sadrzajiId;
+	private ArrayList<Sadrzaj> sadrzaji;
 	private ArrayList<Integer> rezervacijeId;
-	public ApartmanResponse(Apartman a, LokacijaResponse l) {
+	public ApartmanResponse(Apartman a, LokacijaResponse l, ArrayList<Sadrzaj> sadrzaji) {
 		super();
 		this.id = a.getId();
 		this.tip = a.isTip();
@@ -37,7 +38,7 @@ public class ApartmanResponse {
 		this.vremePrijave = a.getVremePrijave();
 		this.vremeOdjave = a.getVremeOdjave();
 		this.status = a.isStatus();
-		this.sadrzajiId = a.getSadrzajiId();
+		this.sadrzaji = sadrzaji;
 		this.rezervacijeId = a.getRezervacijeId();
 	}
 	

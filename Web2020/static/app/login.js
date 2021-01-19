@@ -16,15 +16,15 @@ Vue.component("login-page", {
             usernameEmpty: false,
             passwordEmpty: false,
             usernameClass: 'login-input form-control form-control-good',
-            passwordClass: 'login-input form-control form-control-good'
+            passwordClass: 'login-input form-control form-control-good',
         }
     },
 
     template:/*html*/ `
     <div class="limiter">
         <div class="form-group container-login" >
-            <div class="wrap-login">
-                <span class="login-span">Logovanje korisnika</span>
+            <div class="wrap-login border shadow">
+                <span class="login-span pb-5">Logovanje korisnika</span>
                 <input v-on:input="isUsernameEmpty" v-model="user.username" v-bind:class="usernameClass" placeholder="Korisničko ime">
                 <span v-if="usernameEmpty" class="error-message">Niste uneli korisničko ime.</span>
                 <div v-bind:style="styleObject"></div>
@@ -33,7 +33,7 @@ Vue.component("login-page", {
                 <hr style="width:100%">
                 <span v-if="error!=null" class="error-message">{{error}}</span>
                 <div v-bind:style="styleObject"></div>
-                <button v-on:click="login" class="btn btn-primary login-btn">Login</button>
+                <button v-on:click="login" class="btn btn-primary login-btn">Pošalji</button>
             </div>
         </div>
 	</div>
@@ -52,6 +52,7 @@ Vue.component("login-page", {
                 .then(response => {
                     this.error = null;
                     window.localStorage.setItem('user', response.data);
+                    this.$router.push({path: this.$route.query.putanja})
                 })
                 .catch(error => {
                     this.error = error.response.data['message'];

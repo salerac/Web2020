@@ -44,6 +44,9 @@ public class Main {
 		post("/addSadrzaj", SadrzajService.addSadrzaj);
 		post("/searchApartmani",ApartmanService.searchApartman);
 		get("/getSadrzaji", SadrzajService.getSadrzaji);
+		get("/getApartmaniBySadrzaj", ApartmanService.getApartmaniBySadrzaj);
+		get("/getApartmaniByTip", ApartmanService.getApartmaniByTip);
+		get("/getApartmanById", ApartmanService.getApartman);
 	}
 
 }

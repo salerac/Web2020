@@ -3,15 +3,18 @@ Vue.component('sadrzaj',{
         return {
             sadrzaj: null,
             brojRedova: 0,
-            selektovanSadrzaj: []
+            selektovanSadrzaj: [],
+            props: {
+                tekst: Boolean
+            }
         }
     },
     template:/*html*/`
     <div class="col">
-        <div class="row">
+        <div class="row" v-if="$attrs.tekst">
             <h2>Sadrzaj</h2>
         </div>
-        <div class="row">
+        <div class="row" v-if="$attrs.tekst">
             <h5>Selektujte sta vas apartman sadrzi</h5>
         </div>  
         <div v-for="red in brojRedova" class="row mt-2">

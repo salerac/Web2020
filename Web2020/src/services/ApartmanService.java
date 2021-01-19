@@ -5,15 +5,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import beans.Adresa;
 import beans.Apartman;
 import beans.Lokacija;
+import beans.Sadrzaj;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
 import dto.ApartmanResponse;
@@ -27,6 +31,16 @@ import spark.Route;
 
 public class ApartmanService{
 	private static Gson g = new Gson();
+	
+	public static Route getApartman = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.queryParams("id");
+		Apartman apartman = ApartmanRepository.getApartmanById(g.fromJson(payload, Integer.class));
+		ArrayList<Apartman> a = new ArrayList<Apartman>();
+		a.add(apartman);
+		ArrayList<ApartmanResponse> dto = convertToDTO(a);
+		return g.toJson(dto.get(0));
+	};
 	
 	public static Route addApartman = (Request request, Response response) -> {
 		response.type("application/json");
@@ -56,39 +70,108 @@ public class ApartmanService{
 		SearchDTO search = g.fromJson(payload, SearchDTO.class);
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		ArrayList<ApartmanResponse> povratni = new ArrayList<ApartmanResponse>();
-		
+		ArrayList<Apartman> svi = ApartmanRepository.getApartmani();
 		String grad = search.getLokacija();
-		ArrayList<Apartman> apartmaniPoGradu = ApartmanRepository.getApartmanByGrad(grad);
+		ArrayList<Apartman> apartmaniPoGradu = ApartmanRepository.getApartmanByGrad(grad, svi);
+		System.out.println(apartmaniPoGradu);
 		
 		long datumPrijave = search.getDatumPrijave();
 		long datumOdjave = search.getDatumOdjave();
 		
+		ArrayList<Apartman> apartmaniPoCeni = new ArrayList<Apartman>();
 		double cenaOd = search.getCenaOd();
 		double cenaDo = search.getCenaDo();
-		ArrayList<Apartman> apartmaniPoCeni = ApartmanRepository.getApartmanByCena(cenaOd, cenaDo);
+		if(!(cenaOd == 0 && cenaDo == 0)) {
+			apartmaniPoCeni = ApartmanRepository.getApartmanByCena(cenaOd, cenaDo, apartmaniPoGradu);
+		}
+		else {
+			apartmaniPoCeni = apartmaniPoGradu;
+		}
 		
 		int sobeOd = search.getSobeOd();
 		int sobeDo = search.getSobeDo();
-		ArrayList<Apartman> apartmaniPoBrojuSoba = ApartmanRepository.getApartmanByBrojSoba(sobeOd, sobeDo);
+		ArrayList<Apartman> apartmaniPoBrojuSoba = new ArrayList<Apartman>();
+		if(!(sobeOd == 0 && sobeDo == 0)) {
+			apartmaniPoBrojuSoba = ApartmanRepository.getApartmanByBrojSoba(sobeOd, sobeDo, apartmaniPoCeni);
+		}
+		else {
+			apartmaniPoBrojuSoba = apartmaniPoCeni;
+		}
+
 		
 		int brojGostiju = search.getBrojGostiju();
-		ArrayList<Apartman> apartmaniPoBrojuGostiju = ApartmanRepository.getApartmanByBrojGostiju(brojGostiju);
+		ArrayList<Apartman> apartmaniPoBrojuGostiju = new ArrayList<Apartman>();
+		if(!(brojGostiju == 0)) {
+			apartmaniPoBrojuGostiju = ApartmanRepository.getApartmanByBrojGostiju(brojGostiju, apartmaniPoBrojuSoba);
+		}
+		else {
+			apartmaniPoBrojuGostiju = apartmaniPoBrojuSoba;
+		}
 		
-		pronadjeni.addAll(apartmaniPoGradu);
-		pronadjeni.addAll(apartmaniPoCeni);
-		pronadjeni.addAll(apartmaniPoBrojuSoba);
 		pronadjeni.addAll(apartmaniPoBrojuGostiju);
+		
 		for(int i = 0; i < pronadjeni.size(); i++) {
 			Lokacija l = LokacijaRepository.getLokacijaById(pronadjeni.get(i).getLokacijaId());
 			Adresa a = AdresaRepository.getAdresaById(l.getAdresa());
 			LokacijaResponse lr = new LokacijaResponse(l,a);
-			ApartmanResponse ar = new ApartmanResponse(pronadjeni.get(i), lr);
+			ArrayList<Sadrzaj> sadrzaji = ApartmanRepository.getSadrzajiByApartmanId(pronadjeni.get(i).getId());
+			ApartmanResponse ar = new ApartmanResponse(pronadjeni.get(i), lr, sadrzaji);
 			povratni.add(ar);
 		}
 		
 		
 		return g.toJson(povratni);
 	};
+	public static Route getApartmaniBySadrzaj = (Request request, Response response) -> {
+		response.type("application/json");
+		Set<String> payload = request.queryParams();
+		ArrayList<Sadrzaj> sadrzaji = new ArrayList<Sadrzaj>();
+		for (String temp : payload) {
+			String sadrzaj =  request.queryParams(temp);
+			sadrzaji.add(g.fromJson(sadrzaj, Sadrzaj.class));
+		}
+		ArrayList<Apartman> apartmani = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji);
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		return g.toJson(ret);
+		
+	};
+	public static Route getApartmaniByTip = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.queryParams("value");
+		boolean tip = g.fromJson(payload, Boolean.class);
+		ArrayList<Apartman> apartmani = ApartmanRepository.getApartmaniByTip(tip);
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		return g.toJson(ret);
+	};
+	public static ArrayList<Apartman> filterDown (ArrayList<Apartman> niz1, ArrayList<Apartman> niz2){
+		if(niz2 == null || niz2.isEmpty()) {
+			return niz1;
+		}
+		if(niz1 == null || niz1.isEmpty()) {
+			return niz2;
+		}
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		for(int i = 0; i < niz1.size(); i++) {
+			for(int j = 0; j < niz2.size(); j++) {
+				if(niz1.get(i).equals(niz2.get(i))) {
+					ret.add(niz1.get(i));
+				}
+			}
+		}
+		return ret;
+	}
+	public static ArrayList<ApartmanResponse> convertToDTO(ArrayList<Apartman> pronadjeni){
+		ArrayList<ApartmanResponse> povratni = new ArrayList<ApartmanResponse>();
+		for(int i = 0; i < pronadjeni.size(); i++) {
+			Lokacija l = LokacijaRepository.getLokacijaById(pronadjeni.get(i).getLokacijaId());
+			Adresa a = AdresaRepository.getAdresaById(l.getAdresa());
+			LokacijaResponse lr = new LokacijaResponse(l,a);
+			ArrayList<Sadrzaj> sadrzaji = ApartmanRepository.getSadrzajiByApartmanId(pronadjeni.get(i).getId());
+			ApartmanResponse ar = new ApartmanResponse(pronadjeni.get(i), lr, sadrzaji);
+			povratni.add(ar);
+		}
+		return povratni;
+	}
 	
 	public static ArrayList<String> saveImages(ArrayList<String> slike){
 		ArrayList<String> slike1 = new ArrayList<String>();

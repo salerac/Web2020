@@ -50,4 +50,12 @@ public class SadrzajRepository {
 	public static ArrayList<Sadrzaj> getSadrzaji(){
 		return sadrzaji;
 	}
+	public static Sadrzaj getSadrzajById(int id){
+		for(int i = 0; i < sadrzaji.size(); i++) {
+			if(sadrzaji.get(i).getId() == id) {
+				return sadrzaji.get(id);
+			}
+		}
+		return null;
+	}
 }

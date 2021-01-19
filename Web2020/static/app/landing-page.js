@@ -58,8 +58,8 @@ Vue.component('landing-page', {
                     <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriSobe">
                         <b>{{brojSoba}}</b>
                     </div>
-                    <div class="col-1 border rounded-right-3 small d-flex align-items-center pointer-cursor search-target shadow">
-                        <img src="/icons/loupe.png" class="p-1 ml-1" style="height:28px;width:28px" v-on:click="search">
+                    <div class="col-1 border rounded-right-3 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="search">
+                        <img src="/icons/loupe.png" class="p-1 ml-1" style="height:28px;width:28px">
                     </div>
                 </div>
             </div>
