@@ -81,7 +81,7 @@ Vue.component('unos-apartmana', {
             axios
                 .post('/addApartman', this.apartman)
                 .then(response => {
-                    
+                    alert("dodao");
                 })
                 .catch(error => {
                     this.error = error.response.data['message'];

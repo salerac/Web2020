@@ -6,6 +6,8 @@ Vue.component('landing-page', {
             showCena: false,
             showGosti: false,
             showSobe: false,
+            prijavaReset: false,
+            odjavaReset: false,
             brojGostiju: 0,
             brojSoba: 0,
             minus1: "height:25px;width:25px;opacity:0.3;",
@@ -18,23 +20,21 @@ Vue.component('landing-page', {
             brojSoba: "Sobe",
             pretraga: {
                 lokacija: null,
-                prijava: null,
-                odjava: null,
+                datumPrijave: null,
+                datumOdjave: null,
                 brojGostiju: 0,
                 sobeOd: 0,
                 sobeDo: 0,
                 cenaOd: 0,
                 cenaDo: 0,
-            }
+            },
+            myCalendar: null,
+            myCalendar2: null,
         }
     },
     template: /*html*/`
     <div class="container-fluid">
-        <div class="row">
-            <div class="col" style="height:70px;background-color:darkslategray;width:100%;">
-                <h1 class="mt-2 text-light">Web2020</h1>
-            </div>
-        </div>
+        <my-header></my-header>
         <div class="row search" style="height:750px;">
         <div class="row mt-5" style="height:60px;">
             <div class="col"></div>
@@ -43,11 +43,25 @@ Vue.component('landing-page', {
                     <div class="col-3 p-0 border rounded-left-3 border-right-0 small">
                         <input class="rounded-left-3 input-border-0 fw-bold p-3 shadow" v-model="pretraga.lokacija" type="text" placeholder="Lokacija" style="background-color:#f8f9fa;width:100%;height:100%;">
                     </div>
-                    <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriPrijava">
-                        <b>{{prijava}}</b>
+                    <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriPrijava" v-on:mouseover="function(){prijavaReset = true}" v-on:mouseleave="function(){prijavaReset = false}">
+                        <div class="row">
+                            <div class="col">
+                                <b>{{prijava}}</b>
+                            </div>
+                            <div class="col-1 mr-2 my-auto">
+                                <img src="/icons/close.png" class="rounded-circle border slikax" style="height:15px;width:15px;" v-if="prijavaReset" v-on:click="resetPrijava">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriOdjava">
-                        <b>{{odjava}}</b>
+                    <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriOdjava" v-on:mouseover="function(){odjavaReset = true}" v-on:mouseleave="function(){odjavaReset = false}">
+                        <div class="row">
+                            <div class="col">
+                                <b>{{odjava}}</b>
+                            </div>
+                            <div class="col-1 mr-2 my-auto">
+                                <img src="/icons/close.png" class="rounded-circle border slikax" style="height:15px;width:15px;" v-if="odjavaReset" v-on:click="resetOdjava">
+                            </div>
+                        </div>
                     </div>
                     <div class="col border border-right-0 small d-flex align-items-center pointer-cursor search-target shadow" v-on:click="otvoriCena">
                         <b>{{cena}}</b>
@@ -196,6 +210,18 @@ Vue.component('landing-page', {
             this.showSobe = true;
             this.showGosti = false;
         },
+        resetPrijava: function(){
+            this.prijava = "Prijava";
+            this.showPrijava = false;
+            this.pretraga.datumPrijave = null;
+            this.myCalendar.set(new Date());
+        },
+        resetOdjava: function(){
+            this.odjava = "Odjava";
+            this.showOdjava = false;
+            this.pretraga.datumOdjave = null;
+            this.myCalendar2.set(new Date());
+        },
         umanjiBrojGostiju: function(e){
             if(this.pretraga.brojGostiju == 0) return;
             this.pretraga.brojGostiju--;
@@ -247,22 +273,25 @@ Vue.component('landing-page', {
     mounted: function(){
         var element = document.getElementById("kalendar1");
         var element2 = document.getElementById("kalendar2");
-        var myCalendar = jsCalendar.new(element);
-        myCalendar.onDateClick((event, date) => {
-            myCalendar.set(date);
+        this.myCalendar = jsCalendar.new(element);
+        this.myCalendar.onDateClick((event, date) => {
+            this.myCalendar.set(date);
             var options = { month: 'long'};
             day = date.getDate();
             month = new Intl.DateTimeFormat('sr-Latn-RS', options).format(date)
-            this.prijava = day + ' ' + month;
+            this.prijava = day + '. ' + month;
+            this.pretraga.datumPrijave = date.getTime();
             
         });
-        var myCalendar2 = jsCalendar.new(element2);
-        myCalendar2.onDateClick((event, date) => {
-            myCalendar2.set(date);
+        this.myCalendar2 = jsCalendar.new(element2);
+        this.myCalendar2.onDateClick((event, date) => {
+            this.myCalendar2.set(date);
             var options = { month: 'long'};
             day = date.getDate();
             month = new Intl.DateTimeFormat('sr-Latn-RS', options).format(date)
-            this.odjava = day + ' ' + month;
+            this.odjava = day + '. ' + month;
+            this.pretraga.datumOdjave = date.getTime();
         });
-    }
+    },
+    
 })

@@ -4,7 +4,7 @@ import beans.Uloga;
 import beans.User;
 
 public class UserDTO {
-	
+	private int id;
 	private String username;
 	private String jwt;
 	private String ime;
@@ -13,6 +13,7 @@ public class UserDTO {
 	private Uloga uloga;
 	
 	public UserDTO(User u, String jwt) {
+		this.id = u.getId();
 		this.username = u.getUsername();
 		this.ime = u.getIme();
 		this.prezime = u.getPrezime();

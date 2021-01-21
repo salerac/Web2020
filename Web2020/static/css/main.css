@@ -282,4 +282,31 @@ table{
 	height: 30px;
 	opacity: 0.8
   }
+  #main{
+	height: 100%;
+  }
+  .moj-alert{
+	position: fixed;
+    bottom: 0;
+    left: 0;
+	width: 100%;
+	margin: 0 auto;
+	color: black;
+  }
+  .menu-image{
+	  margin-top: 7px;
+  }
+  .dropdown{
+	width:200px;
+	left: -165px;
+	top: -5px;
+	background-color:white;
+	border-radius: 5px;
+  }
+  .menu-item{
+	height:40px;
+  }
+  .menu-item:hover{
+	background-color: lightgray;
+  }
 	

@@ -43,7 +43,7 @@ public class Apartman {
 	}
 
 	public Apartman() {
-		
+
 	}
 	
 	public int getId() {

@@ -12,6 +12,8 @@ Vue.component('pregled-apartmana',{
             sadrzaj: null,
             sortToggle: false,
             sort: false,
+            apartmaniPoTipu: null,
+            apartmaniPoSadrzaju: null,
             }
     },
     template: /*html*/`
@@ -72,7 +74,7 @@ Vue.component('pregled-apartmana',{
                                         </div>
                                     </div>
                                     <div class="row mt-3">
-                                        <button class="rounded-pill border ml-2" v-on:click="submitFilterPoTipu">Primeni</button>
+                                        <button class="rounded-pill border ml-2" v-on:click="filtriraj">Primeni</button>
                                     </div>
                                 </div>
                             </div>
@@ -87,7 +89,7 @@ Vue.component('pregled-apartmana',{
                                         </div>
                                     </div>
                                     <div class="row mt-3">
-                                        <button class="rounded-pill border ml-2" v-on:click="submitFilterPoSadrzaju">Primeni</button>
+                                        <button class="rounded-pill border ml-2" v-on:click="filtriraj">Primeni</button>
                                     </div>
                                 </div>
                             </div>
@@ -174,12 +176,8 @@ Vue.component('pregled-apartmana',{
             this.showTip = false;
             }
         },
-        submitFilterPoTipu: function(i){
+        filtriraj: function(){
             this.showTip = false;
-            if((this.selektovaniTipovi[0] == true && this.selektovaniTipovi[1] == true) || (this.selektovaniTipovi[0] == false && this.selektovaniTipovi[1] == false)){
-                this.getApartmani();
-                return;
-            }
             index = this.selektovaniTipovi.indexOf(true);
             value = null;
             if(index == 0){
@@ -188,44 +186,33 @@ Vue.component('pregled-apartmana',{
             else{
                 value = true;
             }
-            console.log(value);
-            axios
-                .get('/getApartmaniByTip', {
-                    params: {value}
-                }
-                )
-                .then(response => {
-                    this.filtriraniApartmani = response.data;
-                    this.brojRedova = Math.ceil(this.apartmani.length/5);
-                })
+            if((this.selektovaniTipovi[0] == true && this.selektovaniTipovi[1] == true) || (this.selektovaniTipovi[0] == false && this.selektovaniTipovi[1] == false)){
+                value = null;
+            }
 
-        } ,
-        filterPoSadrzaju: function(i){
-            console.log("usao "+i)
-            this.selektovanSadrzaj[i] = !this.selektovanSadrzaj[i];
-        },
-        submitFilterPoSadrzaju: function(){
             this.showSadrzaj = false;
             sadrzaji = [];
             for(i = 0; i < this.selektovanSadrzaj.length; i++){
                 if(this.selektovanSadrzaj[i] == true){
-                    sadrzaji.push(this.sadrzaj[i]);
+                    sadrzaji.push(this.sadrzaj[i].id);
                 }
             }
             axios
-                .get('/getApartmaniBySadrzaj', {
-                    params: sadrzaji
+                .get('/filtrirajApartmane', {
+                    params: {
+                        tip: value,
+                        sadrzaj: {  sadrzaji }
+                    }
                 }
                 )
                 .then(response => {
                     this.filtriraniApartmani = response.data;
-                    this.brojSadrzaja = this.sadrzaj.length;
                     this.brojRedova = Math.ceil(this.apartmani.length/5);
-                    for(i = 0; i < this.sadrzaj.length; i++){
-                        this.selektovanSadrzaj.push(false);
-                    }
                 })
-
+        },
+        filterPoSadrzaju: function(i){
+            console.log("usao "+i)
+            this.selektovanSadrzaj[i] = !this.selektovanSadrzaj[i];
         },
         getApartmani: function(){
             pretraga = this.$route.query;

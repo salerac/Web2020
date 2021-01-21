@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class Rezervacija {
 
+	private int id;
 	private int apartmanId;
 	private long pocetniDatum;
 	private int brojNocenja;
@@ -14,6 +15,15 @@ public class Rezervacija {
 	public int getApartmanId() {
 		return apartmanId;
 	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public void setApartmanId(int apartmanId) {
 		this.apartmanId = apartmanId;
 	}

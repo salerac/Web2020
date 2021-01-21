@@ -12,19 +12,24 @@ import java.util.Random;
 import java.util.Set;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import beans.Adresa;
 import beans.Apartman;
 import beans.Lokacija;
+import beans.Rezervacija;
 import beans.Sadrzaj;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
 import dto.ApartmanResponse;
 import dto.LokacijaResponse;
+import dto.SadrzajiDTO;
 import repositories.AdresaRepository;
 import repositories.ApartmanRepository;
 import repositories.LokacijaRepository;
+import repositories.RezervacijaRepository;
+import repositories.SadrzajRepository;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -71,21 +76,43 @@ public class ApartmanService{
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		ArrayList<ApartmanResponse> povratni = new ArrayList<ApartmanResponse>();
 		ArrayList<Apartman> svi = ApartmanRepository.getApartmani();
+		
 		String grad = search.getLokacija();
-		ArrayList<Apartman> apartmaniPoGradu = ApartmanRepository.getApartmanByGrad(grad, svi);
+		ArrayList<Apartman> apartmaniPoGradu = new ArrayList<Apartman>();
+		if(grad != null) {
+			if(!grad.equals("")) {
+			apartmaniPoGradu = ApartmanRepository.getApartmanByGrad(grad, svi);
+			}
+			else {
+				apartmaniPoGradu = svi;
+			}
+		}
+		else {
+			apartmaniPoGradu = svi;
+		}
 		System.out.println(apartmaniPoGradu);
 		
 		long datumPrijave = search.getDatumPrijave();
 		long datumOdjave = search.getDatumOdjave();
 		
+		System.out.println(datumPrijave);
+		System.out.println(datumOdjave);
+		ArrayList<Apartman> apartmaniPoPeriodu = new ArrayList<Apartman>();
+		if(!(datumPrijave == 0 || datumOdjave == 0)) {
+			apartmaniPoPeriodu = ApartmanRepository.getApartmanByDatumi(datumPrijave, datumOdjave, apartmaniPoGradu);
+		}
+		else {
+			apartmaniPoPeriodu = apartmaniPoGradu;
+		}
+		System.out.println(apartmaniPoPeriodu);
 		ArrayList<Apartman> apartmaniPoCeni = new ArrayList<Apartman>();
 		double cenaOd = search.getCenaOd();
 		double cenaDo = search.getCenaDo();
 		if(!(cenaOd == 0 && cenaDo == 0)) {
-			apartmaniPoCeni = ApartmanRepository.getApartmanByCena(cenaOd, cenaDo, apartmaniPoGradu);
+			apartmaniPoCeni = ApartmanRepository.getApartmanByCena(cenaOd, cenaDo, apartmaniPoPeriodu);
 		}
 		else {
-			apartmaniPoCeni = apartmaniPoGradu;
+			apartmaniPoCeni = apartmaniPoPeriodu;
 		}
 		
 		int sobeOd = search.getSobeOd();
@@ -122,7 +149,64 @@ public class ApartmanService{
 		
 		return g.toJson(povratni);
 	};
-	public static Route getApartmaniBySadrzaj = (Request request, Response response) -> {
+	public static Route postRezervacija = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		Rezervacija rez = g.fromJson(payload, Rezervacija.class);
+		
+		Apartman apartman = ApartmanRepository.getApartmanById(rez.getApartmanId());
+		
+		try {
+		ApartmanRepository.addRezervacijaToApartman(apartman.getId(), rez);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Zadati datumi su zauzeti.");
+			return message ;
+		}
+		
+		RezervacijaRepository.addRezervacija(rez);
+		JsonObject message = new JsonObject();
+		message.addProperty("message", "Rezervacija je uspešno dodata.");	
+		return message;
+		
+	};
+	public static Route filtrirajApartmane = ((Request request, Response response) -> {
+		response.type("application/json");
+		String payloadSadrzaj = request.queryParams("sadrzaj");
+		SadrzajiDTO sadrzajDTO = g.fromJson(payloadSadrzaj, SadrzajiDTO.class);
+		ArrayList<Integer> sadrzajiId = sadrzajDTO.getSadrzaji();
+		ArrayList<Sadrzaj> sadrzaji = new ArrayList<Sadrzaj>();
+		for (int i : sadrzajiId) {
+			Sadrzaj s = SadrzajRepository.getSadrzajById(i);
+			sadrzaji.add(s);
+		}
+		String payloadTip = request.queryParams("tip");
+		boolean tipPostoji = true;
+		boolean tip = false;
+		try {
+			tip = g.fromJson(payloadTip, Boolean.class);
+		}
+		catch(Exception e) {
+			tipPostoji = false;
+		}
+		ArrayList<Apartman> apartmaniPoSadrzaju = ApartmanRepository.getApartmani();
+		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
+			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji);
+		}
+		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
+		if(!tipPostoji == false) {
+			apartmaniPoTipu = ApartmanRepository.getApartmaniByTip(tip, apartmaniPoSadrzaju);
+		}
+		else {
+			apartmaniPoTipu = apartmaniPoSadrzaju;
+		}
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmaniPoTipu);
+		return g.toJson(ret);
+	});
+	/*public static Route getApartmaniBySadrzaj = (Request request, Response response) -> {
 		response.type("application/json");
 		Set<String> payload = request.queryParams();
 		ArrayList<Sadrzaj> sadrzaji = new ArrayList<Sadrzaj>();
@@ -142,7 +226,7 @@ public class ApartmanService{
 		ArrayList<Apartman> apartmani = ApartmanRepository.getApartmaniByTip(tip);
 		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
 		return g.toJson(ret);
-	};
+	};*/
 	public static ArrayList<Apartman> filterDown (ArrayList<Apartman> niz1, ArrayList<Apartman> niz2){
 		if(niz2 == null || niz2.isEmpty()) {
 			return niz1;

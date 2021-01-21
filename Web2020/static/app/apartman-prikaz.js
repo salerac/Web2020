@@ -57,7 +57,7 @@ Vue.component('apartman-prikaz', {
                                         <img class="sadrzaj-ikonica" src="icons/living-room.png">
                                     </div>
                                     <div class="col ml-1">
-                                        <span v-if="apartman.tip">Jedna soba</span>
+                                        <span v-if="apartman.tip">Soba</span>
                                         <span v-else>Ceo Apartman</span>
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@ Vue.component('apartman-prikaz', {
                         </div>
                         <div class="row mt-4">
                             <div class="col">
-                                <div class="row" v-if="!apartman.tip">
+                                <div class="row">
                                     <div class="col-2">
                                         <img class="sadrzaj-ikonica" src="icons/door.png">
                                     </div>
@@ -165,19 +165,18 @@ Vue.component('apartman-prikaz', {
         script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBMGnRyzotturmaqorihBs1rP3ztn8vT7o&libraries=places&callback=initMap';
         window.initMap = this.initMap;
         document.head.appendChild(script);
-        axios
-            .get('/getApartmanById', {params: this.$route.query})
-            .then(response => {
-                this.apartman = response.data;
-                this.brojRedova = Math.ceil(this.apartman.sadrzaji.length/3);
-            });
+        this.load();
+    },
+    created: function(){
+        this.$root.$on('reload',() => {
+            this.load();
+        })
     },
     updated: function(){ 
         element = this.$refs.kalendar;
         if(this.myCalendar == null){ 
         this.myCalendar = jsCalendar.new(element);
         this.myCalendar.onDateRender((date, element, info) => {
-            date.setHours(date.getHours() + 1);
             if(!this.apartman.datumi.includes(date.getTime())){ 
                 element.style.fontWeight = 'bold';
                 element.style.color = '#ffb4b4';
@@ -204,6 +203,14 @@ Vue.component('apartman-prikaz', {
         }
     },
     methods: {
+        load: function(){
+            axios
+            .get('/getApartmanById', {params: this.$route.query})
+            .then(response => {
+                this.apartman = response.data;
+                this.brojRedova = Math.ceil(this.apartman.sadrzaji.length/3);
+            });
+        },
         getStyle: function(){
             return "background-image: url('" + this.apartman.slike[0] + "');width:100%; height:100%;";
         },

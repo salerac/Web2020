@@ -6,12 +6,18 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import beans.Apartman;
+import beans.Rezervacija;
 import beans.Sadrzaj;
 import beans.User;
 
@@ -59,6 +65,38 @@ public class ApartmanRepository {
 		apartmani.add(a);
 		saveApartmani();
 	}
+	public static void addRezervacijaToApartman(int apartmanId, Rezervacija rez) throws Exception {
+		Apartman a = ApartmanRepository.getApartmanById(apartmanId);
+		ArrayList<Integer> rezervacije = a.getRezervacijeId();
+
+		int brojNocenja = rez.getBrojNocenja();
+		Date pocetniDatum = new Date(rez.getPocetniDatum());
+		ArrayList<Long> datumi = (ArrayList<Long>) a.getDatumi().clone();
+		
+		int brojac = 0;
+		
+		for(int i = 0; i < brojNocenja; i++) {
+			Calendar c = Calendar.getInstance(); 
+			c.setTime(pocetniDatum); 
+			c.add(Calendar.DATE, i);
+			long datumLong = c.getTime().getTime();
+			for(int j = 0; j < a.getDatumi().size(); j++) {
+				if(a.getDatumi().get(j) == datumLong) {
+					a.getDatumi().remove(j);
+					brojac++;
+					System.out.println(brojac);
+				}
+			}
+		}
+		if(brojac == brojNocenja) {
+			rezervacije.add(rez.getId());
+			saveApartmani();
+		}
+		else {
+			a.setDatumi(datumi);
+			throw new Exception();
+		}
+	}
 	public static Apartman getApartmanById(int id) {
 		for(int i = 0; i < apartmani.size(); i++) {
 			if(apartmani.get(i).getId() == id) {
@@ -78,6 +116,45 @@ public class ApartmanRepository {
 			}
 		}
 		return a;
+	}
+	public static ArrayList<Apartman> getApartmanByDatumi(long datumOd, long datumDo, ArrayList<Apartman> ulazni){
+		if(ulazni == null || ulazni.isEmpty()) {
+			ulazni = apartmani;
+		}
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		Date startDate = new Date(datumOd);
+		Date endDate = new Date(datumDo);
+	    List<Date> datesInRange = new ArrayList<>();
+	    Calendar calendar = new GregorianCalendar();
+	    calendar.setTime(startDate);
+	    
+	    Calendar endCalendar = new GregorianCalendar();
+	    endCalendar.setTime(endDate);
+
+	    while (calendar.before(endCalendar)) {
+	        Date result = calendar.getTime();
+	        datesInRange.add(result);
+	        System.out.println("dodao");
+	        calendar.add(Calendar.DATE, 1);
+	    }
+	    for(int i = 0; i < ulazni.size(); i++) {
+	    	Apartman a = ulazni.get(i);
+	    	int brojac = 0;
+		    for(int j = 0; j < datesInRange.size(); j++) {
+		    	long date = datesInRange.get(j).getTime();
+		    	if(ulazni.get(i).getDatumi().contains(date)) {
+		    		System.out.println(date);
+		    		brojac++;
+		    		System.out.println(brojac);
+		    	}
+		    }
+		    if(brojac == datesInRange.size()) {
+		    	System.out.println(brojac + " brojac");
+		    	System.out.println(datesInRange.size() + " velicina");
+		    	ret.add(a);
+		    }
+	    }
+	    return ret;
 	}
 	public static ArrayList<Apartman> getApartmanByCena(double cenaOd, double cenaDo, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
@@ -140,11 +217,14 @@ public class ApartmanRepository {
 		}
 		return ret;
 	}
-	public static ArrayList<Apartman> getApartmaniByTip(boolean tip){
+	public static ArrayList<Apartman> getApartmaniByTip(boolean tip, ArrayList<Apartman> ulazni){
+		if(ulazni == null || ulazni.isEmpty()) {
+			ulazni = apartmani;
+		}
 		ArrayList<Apartman> ret = new ArrayList<Apartman>();
-		for(int i = 0; i < apartmani.size(); i++) {
-			if(apartmani.get(i).isTip() == tip) {
-				ret.add(apartmani.get(i));
+		for(int i = 0; i < ulazni.size(); i++) {
+			if(ulazni.get(i).isTip() == tip) {
+				ret.add(ulazni.get(i));
 			}
 		}
 		return ret;

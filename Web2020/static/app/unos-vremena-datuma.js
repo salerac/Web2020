@@ -162,8 +162,11 @@ Vue.component('unos-vremena-datuma', {
         },
         dodajDatum: function(){
             if(!this.periodi.includes(this.pocetniDatum + " - " + this.krajnjiDatum)){ 
-                for(var p = new Date(this.pocetniDatum); p <= new Date(this.krajnjiDatum); p.setDate(p.getDate() + 1)){ 
-                    this.datumi.push(new Date(p).getTime());
+                for(var p = new Date(this.pocetniDatum); p <= new Date(this.krajnjiDatum); p.setDate(p.getDate() + 1)){
+                    date = new Date(p);
+                    date.setHours(date.getHours() - 1); 
+                    this.datumi.push(date.getTime());
+                    console.log(new Date(p));
                 }
                 this.brojPerioda++;
                 this.brojRedova = Math.ceil(this.brojPerioda/2);

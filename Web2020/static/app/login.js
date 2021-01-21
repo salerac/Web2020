@@ -51,7 +51,7 @@ Vue.component("login-page", {
                 .post('/login', {"username": ''+this.user.username, "lozinka": ''+this.user.lozinka})
                 .then(response => {
                     this.error = null;
-                    window.localStorage.setItem('user', response.data);
+                    window.localStorage.setItem('user', JSON.stringify(response.data));
                     this.$router.push({path: this.$route.query.putanja})
                 })
                 .catch(error => {

@@ -1,6 +1,1 @@
-[
-	{
-		"username": "sale",
-		"lozinka": "sale"
-	}
-]
+[{"id":0,"username":"sale","lozinka":"sale","pol":false,"uloga":"GOST"},{"id":1,"username":"mared","lozinka":"lozinka","ime":"Marko","prezime":"Markovic","pol":false,"uloga":"GOST"}]

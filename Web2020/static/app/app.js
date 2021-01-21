@@ -4,13 +4,15 @@ const LandingPage = { template: '<landing-page></landing-page>' }
 const UnosApartmana = { template: '<unos-apartmana></unos-apartmana>' }
 const ApartmanPrikaz = { template: '<apartman-prikaz></apartman-prikaz>' }
 const Rezervacija = { template: '<rezervacija></rezervacija>' }
+const Registracija = { template: '<registracija></registracija>' }
 
 const router = new VueRouter({
 	mode: 'hash',
 	routes:[
 		{
 			path: "",
-			component: LandingPage
+			component: LandingPage,
+			name: "landingPage"
 		},
 		{
 			path: "/login",
@@ -31,10 +33,14 @@ const router = new VueRouter({
 			path: "/rezervacija",
 			name: "rezervacija",
 			component: Rezervacija
+		},
+		{
+			path: "/registracija",
+			name: "registracija",
+			component: Registracija
 		}
 	]
 });
-
 
 var app = new Vue({ 
 	router,

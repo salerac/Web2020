@@ -3,6 +3,8 @@ package app;
 import static spark.Spark.post;
 import static spark.Spark.get;
 import static spark.Spark.port;
+import static spark.Spark.path;
+import static spark.Spark.before;
 import static spark.Spark.staticFiles;
 import java.io.File;
 
@@ -10,6 +12,7 @@ import beans.Sadrzaj;
 import repositories.AdresaRepository;
 import repositories.ApartmanRepository;
 import repositories.LokacijaRepository;
+import repositories.RezervacijaRepository;
 import repositories.SadrzajRepository;
 import repositories.UserRepository;
 import services.ApartmanService;
@@ -22,6 +25,7 @@ public class Main {
 		AdresaRepository.loadAdrese();
 		LokacijaRepository.loadLokacije();
 		ApartmanRepository.loadApartmani();
+		RezervacijaRepository.loadRezervacije();
 		Sadrzaj s1 = new Sadrzaj();
 		Sadrzaj s2 = new Sadrzaj();
 		Sadrzaj s3 = new Sadrzaj();
@@ -40,13 +44,18 @@ public class Main {
 		staticFiles.externalLocation(new File("./static").getCanonicalPath());
 		
 		post("/login", LoginService.handleLogin);
+		post("/registerGost", LoginService.registerGost);
 		post("/addApartman", ApartmanService.addApartman);
 		post("/addSadrzaj", SadrzajService.addSadrzaj);
 		post("/searchApartmani",ApartmanService.searchApartman);
 		get("/getSadrzaji", SadrzajService.getSadrzaji);
-		get("/getApartmaniBySadrzaj", ApartmanService.getApartmaniBySadrzaj);
-		get("/getApartmaniByTip", ApartmanService.getApartmaniByTip);
+		get("/filtrirajApartmane", ApartmanService.filtrirajApartmane);
+		//get("/getApartmaniByTip", ApartmanService.getApartmaniByTip);
 		get("/getApartmanById", ApartmanService.getApartman);
+		path("/gost", () -> {
+			before("/*", LoginService.authenticateGost);
+			post("/postRezervacija",  ApartmanService.postRezervacija);
+		});
 	}
 
 }

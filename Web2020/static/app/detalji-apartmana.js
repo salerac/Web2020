@@ -84,6 +84,7 @@ Vue.component('detalji-apartmana',{
         },
         ukloniSliku: function(e){
             this.slike.splice(e.target.dataset.id,1);
+            this.slike1.splice(e.target.dataset.id,1);
         },
         umanjiBrojSoba: function(e){
             if(this.brojSoba == 0) return;

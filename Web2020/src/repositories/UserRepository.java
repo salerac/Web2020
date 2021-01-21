@@ -13,12 +13,14 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import beans.Adresa;
 import beans.User;
 
 public class UserRepository {
 	private static ArrayList<User> users;
 	private final static String PATH = "database/users.json";
 	private static Gson gson = new Gson();
+	private static int globalId = 0;
 	
 	public static void loadUsers() throws IOException
 	{
@@ -26,6 +28,13 @@ public class UserRepository {
 		users = new ArrayList<User>();
 		Type collectionType = new TypeToken<ArrayList<User>>(){}.getType();
 		users = gson.fromJson(reader, collectionType);
+		if(users == null) {
+			users = new ArrayList<User>();
+			globalId = 0;
+		}
+		else {
+		globalId = users.get(users.size() - 1).getId() + 1;
+		}
 		reader.close();
 	}
 	public static void saveUsers() throws IOException {
@@ -41,6 +50,24 @@ public class UserRepository {
 		}
 		}
 		return null;
+		
+	}
+	public static User addUser(User user) throws Exception {
+		if(findOne(user.getUsername()) != null) {
+			throw new Exception("Korisnik sa datim korisničkim imenom već postoji.");
+		}
+		else {
+			user.setId(globalId);
+			globalId++;
+			users.add(user);
+			try {
+				saveUsers();
+				return user;
+			}
+			catch(Exception e) {
+				throw new Exception("Čuvanje nije uspelo.");
+			}
+		}
 		
 	}
 	public static ArrayList<User> getUsers(){
