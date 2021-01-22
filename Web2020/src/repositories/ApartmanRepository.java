@@ -97,6 +97,18 @@ public class ApartmanRepository {
 			throw new Exception();
 		}
 	}
+	public static void otkaziRezervaciju(Apartman a, Rezervacija r) throws IOException {
+		Date pocetniDatum = new Date(r.getPocetniDatum());
+		int brojNocenja = r.getBrojNocenja();
+		Calendar c = Calendar.getInstance();
+		c.setTime(pocetniDatum);
+		for(int i = 0; i < brojNocenja; i++) {
+			long datumLong = c.getTime().getTime();
+			a.getDatumi().add(datumLong);
+			c.add(Calendar.DATE, 1);
+		}
+		saveApartmani();
+	}
 	public static Apartman getApartmanById(int id) {
 		for(int i = 0; i < apartmani.size(); i++) {
 			if(apartmani.get(i).getId() == id) {

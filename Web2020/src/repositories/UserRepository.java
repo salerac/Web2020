@@ -52,6 +52,15 @@ public class UserRepository {
 		return null;
 		
 	}
+	public static User getUserById(Integer id) {
+		for(User u: users) {
+			if(u.getId() == id) {
+				return u;
+		}
+		}
+		return null;
+		
+	}
 	public static User addUser(User user) throws Exception {
 		if(findOne(user.getUsername()) != null) {
 			throw new Exception("Korisnik sa datim korisničkim imenom već postoji.");
@@ -69,6 +78,20 @@ public class UserRepository {
 			}
 		}
 		
+	}
+	public static User editUser(User user) throws Exception {
+		User stari = findOne(user.getUsername());
+		stari.setIme(user.getIme());
+		stari.setPrezime(user.getPrezime());
+		stari.setLozinka(user.getLozinka());
+		stari.setPol(user.isPol());
+		stari.setUloga(user.getUloga());
+		try {
+			saveUsers();
+			return stari;
+		} catch (IOException e) {
+			throw new Exception("Čuvanje nije uspelo.");
+		}
 	}
 	public static ArrayList<User> getUsers(){
 		return users;

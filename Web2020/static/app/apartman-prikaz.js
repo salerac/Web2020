@@ -11,12 +11,7 @@ Vue.component('apartman-prikaz', {
     },
     template:/*html*/`
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-2" style="height:70px;background-color:darkslategray;width:100%;">
-                <h2 class="mt-3 text-light">Web2020</h2>
-                <button v-on:click="logout">logout</button>
-            </div>
-        </div>
+        <my-header></my-header>
         <div class="row mt-4">
             <div class="col-2"></div>
             <div class="col">
@@ -259,8 +254,5 @@ Vue.component('apartman-prikaz', {
                 this.$router.push({name: 'login', query: {putanja :this.$route.fullPath}}); 
             }
         },
-        logout: function(){
-            localStorage.removeItem("user");
-        }
     }
 })

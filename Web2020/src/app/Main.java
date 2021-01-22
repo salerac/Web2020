@@ -2,6 +2,7 @@ package app;
 
 import static spark.Spark.post;
 import static spark.Spark.get;
+import static spark.Spark.delete;
 import static spark.Spark.port;
 import static spark.Spark.path;
 import static spark.Spark.before;
@@ -55,6 +56,9 @@ public class Main {
 		path("/gost", () -> {
 			before("/*", LoginService.authenticateGost);
 			post("/postRezervacija",  ApartmanService.postRezervacija);
+			post("/editGost", LoginService.editGost);
+			get("/getGostRezervacije", LoginService.getGostRezervacije);
+			delete("/odustaniOdRezervacije", LoginService.odustaniOdRezervacije);
 		});
 	}
 

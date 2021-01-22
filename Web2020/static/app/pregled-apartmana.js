@@ -18,11 +18,7 @@ Vue.component('pregled-apartmana',{
     },
     template: /*html*/`
     <div class="container-fluid pregled-pozadina" v-on:click="sakrijFiltere">
-        <div class="row">
-            <div class="col" style="height:70px;background-color:darkslategray;width:100%;">
-                <h2 class="mt-3 text-light">Web2020</h2>
-            </div>
-        </div>
+        <my-header></my-header>
         <div class="row">
             <div class="col-1"></div>
             <div class="col">

@@ -12,10 +12,19 @@ public class Rezervacija {
 	private String poruka;
 	private int gostId;
 	private Status status;
+	private String slika;
 	public int getApartmanId() {
 		return apartmanId;
 	}
 	
+	public String getSlika() {
+		return slika;
+	}
+
+	public void setSlika(String slika) {
+		this.slika = slika;
+	}
+
 	public int getId() {
 		return id;
 	}

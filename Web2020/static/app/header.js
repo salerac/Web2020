@@ -1,8 +1,8 @@
 Vue.component('my-header', {
     data: function(){
         return {
-            drop: false
-
+            drop: false,
+            user: null,
         }
     },
     template:/*html*/`
@@ -10,7 +10,7 @@ Vue.component('my-header', {
         <div class="col" style="height:100%">
             <div class="row" style="height:100%">
                 <div class="col-2">
-                    <h2 class="mt-3 text-light">Web2020</h2>
+                    <h2 class="mt-3 text-light pointer-cursor" v-on:click="goToLandingPage()" style="width:150px;">Web2020</h2>
                 </div>
                 <div class="col"></div>
                 <div class="col-1 my-auto">
@@ -36,6 +36,12 @@ Vue.component('my-header', {
                         <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="checkUser()">
                             <span class="my-auto" v-on:click="registracija()">Registrujte se</span>
                         </div>
+                        <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="!checkUser()">
+                            <span class="my-auto" v-on:click="goToDashboard()">Vaš profil</span>
+                        </div>
+                        <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="!checkUser()">
+                            <span class="my-auto" v-on:click="logout()">Izlogujte se</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -44,8 +50,8 @@ Vue.component('my-header', {
     `,
     methods: {
         checkUser: function(){
-            user = JSON.parse(localStorage.getItem("user"));
-            if(user == null){
+            this.user = JSON.parse(localStorage.getItem("user"));
+            if(this.user == null){
                 return true;
             }
             else {
@@ -56,10 +62,26 @@ Vue.component('my-header', {
             this.drop = !this.drop;
         },
         login: function(){
-            this.$router.push({name: "login"})
+            this.toggleDrop();
+            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}})
+        },
+        logout: function(){
+            this.toggleDrop();
+            localStorage.removeItem("user");
+            this.$root.$emit("logout");
+            this.user = null;
         },
         registracija: function(){
+            this.toggleDrop();
             this.$router.push({name: "registracija"});
+        },
+        goToLandingPage: function(){
+            this.toggleDrop();
+            this.$router.push({name: "landingPage"});
+        },
+        goToDashboard: function(){
+            this.toggleDrop();
+            this.$router.push({name: "dashboard"});
         }
     } 
 })

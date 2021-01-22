@@ -20,6 +20,7 @@ import beans.Apartman;
 import beans.Lokacija;
 import beans.Rezervacija;
 import beans.Sadrzaj;
+import beans.User;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
 import dto.ApartmanResponse;
@@ -30,6 +31,7 @@ import repositories.ApartmanRepository;
 import repositories.LokacijaRepository;
 import repositories.RezervacijaRepository;
 import repositories.SadrzajRepository;
+import repositories.UserRepository;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -153,7 +155,7 @@ public class ApartmanService{
 		response.type("application/json");
 		String payload = request.body();
 		Rezervacija rez = g.fromJson(payload, Rezervacija.class);
-		
+		User u = UserRepository.getUserById(rez.getGostId());
 		Apartman apartman = ApartmanRepository.getApartmanById(rez.getApartmanId());
 		
 		try {
@@ -166,8 +168,10 @@ public class ApartmanService{
 			message.addProperty("message", "Zadati datumi su zauzeti.");
 			return message ;
 		}
-		
+		rez.setSlika(apartman.getSlike().get(0));
 		RezervacijaRepository.addRezervacija(rez);
+		u.getRezervacijeId().add(rez.getId());
+		UserRepository.saveUsers();
 		JsonObject message = new JsonObject();
 		message.addProperty("message", "Rezervacija je uspešno dodata.");	
 		return message;

@@ -20,12 +20,7 @@ Vue.component('rezervacija',{
     },
     template:/*html*/`
     <div class="container-fluid h-100">
-        <div class="row">
-            <div class="col-2" style="height:70px;background-color:darkslategray;width:100%;">
-                <h2 class="mt-3 text-light">Web2020</h2>
-                <button>logout</button>
-            </div>
-        </div>
+        <my-header></my-header>
         <div class="row h-100 mt-5">
             <div class="col"></div>
             <div class="col-4 border shadow my-auto pl-4 pr-4">
@@ -43,6 +38,12 @@ Vue.component('rezervacija',{
                         </div>
                         <div class="row">
                             <span>u mestu <b>{{apartman.lokacija.adresa.grad}}</b></span>
+                        </div>
+                        <div class="row">
+                            <span>Cena/noći: <b>{{apartman.cenaPoNoci}}</b> RSD</span>
+                        </div>
+                        <div class="row">
+                            <span>Ukupna cena: <h5><b>{{apartman.cenaPoNoci*brojNocenja}} RSD</b></h5></span>
                         </div>
                     </div>
                 </div>

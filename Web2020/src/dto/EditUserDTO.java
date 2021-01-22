@@ -1,17 +1,18 @@
-package beans;
+package dto;
 
-import java.util.ArrayList;
+import beans.Uloga;
+import beans.User;
 
-public class User {
+public class EditUserDTO {
 	private int id;
 	private String username;
-	private String lozinka;
+	private String jwt;
 	private String ime;
 	private String prezime;
 	private boolean pol;
 	private Uloga uloga;
-	ArrayList<Integer> rezervacijeId;
-	
+	private String lozinka;
+	private String staraLozinka;
 	public int getId() {
 		return id;
 	}
@@ -24,11 +25,11 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public String getLozinka() {
-		return lozinka;
+	public String getJwt() {
+		return jwt;
 	}
-	public void setLozinka(String lozinka) {
-		this.lozinka = lozinka;
+	public void setJwt(String jwt) {
+		this.jwt = jwt;
 	}
 	public String getIme() {
 		return ime;
@@ -54,13 +55,18 @@ public class User {
 	public void setUloga(Uloga uloga) {
 		this.uloga = uloga;
 	}
-	public ArrayList<Integer> getRezervacijeId() {
-		return rezervacijeId;
+	public String getLozinka() {
+		return lozinka;
 	}
-	public void setRezervacijeId(ArrayList<Integer> rezervacijeId) {
-		this.rezervacijeId = rezervacijeId;
+	public void setLozinka(String lozinka) {
+		this.lozinka = lozinka;
 	}
-	
-	
+	public String getStaraLozinka() {
+		return staraLozinka;
+	}
+	public void setStaraLozinka(String staraLozinka) {
+		this.staraLozinka = staraLozinka;
+	}
 	
 }
+

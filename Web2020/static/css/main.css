@@ -309,4 +309,7 @@ table{
   .menu-item:hover{
 	background-color: lightgray;
   }
+  .my-modal{
+	  border-radius: 10px;
+  }
 	
