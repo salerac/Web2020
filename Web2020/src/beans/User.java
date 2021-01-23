@@ -11,6 +11,7 @@ public class User {
 	private boolean pol;
 	private Uloga uloga;
 	ArrayList<Integer> rezervacijeId;
+	ArrayList<Integer> apartmaniId;
 	
 	public int getId() {
 		return id;
@@ -29,6 +30,13 @@ public class User {
 	}
 	public void setLozinka(String lozinka) {
 		this.lozinka = lozinka;
+	}
+	
+	public ArrayList<Integer> getApartmaniId() {
+		return apartmaniId;
+	}
+	public void setApartmaniId(ArrayList<Integer> apartmaniId) {
+		this.apartmaniId = apartmaniId;
 	}
 	public String getIme() {
 		return ime;

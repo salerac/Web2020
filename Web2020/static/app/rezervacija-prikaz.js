@@ -24,24 +24,68 @@ Vue.component('rezervacija-prikaz', {
         <div class="row">
             <span>Status: <h5><b>{{rezervacija.status}}</b></h5></span>
         </div>
-        <div class="row">
+        <div class="row" style="height:50px;">
             <div class="col">
-                <button class="btn btn-light border mb-2" v-on:click="odustani()">Odustani</button>
+                <button class="btn btn-light border mb-2" v-if="prikazOdustani()" v-on:click="potvrdi()">Odustani</button>
             </div>
             <div class="col">
             </div>
             <div class="col"></div>
         </div>
+
+        <!-- Modal -->
+        <div :id="getId()" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" style="width:300px;">
+                <!-- Modal content-->
+                <div class="modal-content my-modal">
+                    <div class="modal-body">
+                        <p>Da li ste sigurni da želite da odustanete?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-light border mt-1" v-on:click="odustani()">Ne</button>
+                                </div>
+                                <div class="col"></div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-danger mt-1" v-on:click="otkazi()">Da</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     `,
     methods: {
+      getId: function(){
+        return "myModal" + this.rezervacija.id;
+      },
       convertDatum: function(){
         return new Intl.DateTimeFormat('sr-Latn-RS').format(new Date(this.rezervacija.pocetniDatum));
       },
+      prikazOdustani: function(){
+          if(this.rezervacija.status == "KREIRANA" || this.rezervacija.status == "PRIHVACENA"){
+              return true;
+          }
+          else{
+              return false;
+          }
+      },
+      potvrdi: function(){
+        $('#myModal' + this.rezervacija.id).modal('show');
+      },
       odustani: function(){
+        $('#myModal' + this.rezervacija.id).modal('hide');
+      },
+      otkazi: function(){
+        $('#myModal' + this.rezervacija.id).modal('hide');
         user = JSON.parse(localStorage.getItem('user'));  
         userId = user.id;
+        console.log(this.rezervacija.id)
         header = "Bearer " + user.jwt;
         axios.delete("/gost/odustaniOdRezervacije", {
             headers: {
@@ -53,7 +97,7 @@ Vue.component('rezervacija-prikaz', {
             }
         })
         .then(response => {
-
+            this.$root.$emit("izmena");
         });
       }  
     },

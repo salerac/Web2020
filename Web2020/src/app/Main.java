@@ -56,9 +56,15 @@ public class Main {
 		path("/gost", () -> {
 			before("/*", LoginService.authenticateGost);
 			post("/postRezervacija",  ApartmanService.postRezervacija);
-			post("/editGost", LoginService.editGost);
+			post("/editGost", LoginService.editUser);
 			get("/getGostRezervacije", LoginService.getGostRezervacije);
 			delete("/odustaniOdRezervacije", LoginService.odustaniOdRezervacije);
+		});
+		path("/domacin", () -> {
+			before("/*", LoginService.authenticateDomacin);
+			post("/editGost", LoginService.editUser);
+			get("/getDomacinApartmani", ApartmanService.getDomacinApartmani);
+			get("/filtrirajDomacinApartmane", ApartmanService.filtrirajDomacinApartmane);
 		});
 	}
 

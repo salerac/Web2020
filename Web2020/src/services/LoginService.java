@@ -31,7 +31,7 @@ import static spark.Spark.halt;
 public class LoginService {
 	
 	private static Gson g = new Gson();
-	static Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	private static Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 	
 	public static Route handleLogin = (Request request, Response response) -> {
 		response.type("application/json");
@@ -69,11 +69,18 @@ public class LoginService {
 			return message;
 		}
 	};
-	public static Route editGost = (Request request, Response response) -> {
+	public static Route editUser = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.body();
 		EditUserDTO u = g.fromJson(payload, EditUserDTO.class);
-		User user = UserRepository.findOne(u.getUsername());
+		//User user = UserRepository.findOne(u.getUsername());
+		User user = UserRepository.getTrenutniUser();
+		if(!user.getUloga().equals(Uloga.GOST)) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Korisnik nije gost.");	
+			return message;
+		}
 		if(!user.getLozinka().equals(u.getStaraLozinka())) {
 			response.status(401);
 			JsonObject message = new JsonObject();
@@ -100,9 +107,7 @@ public class LoginService {
 	};
 	public static Route getGostRezervacije = (Request request, Response response) -> {
 		response.type("application/json");
-		String payload = request.queryParams("id");
-		int id = Integer.parseInt(payload);
-		User u = UserRepository.getUserById(id);
+		User u = UserRepository.getTrenutniUser();
 		ArrayList<Integer> rezId = u.getRezervacijeId();
 		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
 		for(int i : rezId) {
@@ -115,9 +120,23 @@ public class LoginService {
 		response.type("application/json");
 		String payload = request.body();
 		OdustanakDTO dto = g.fromJson(payload, OdustanakDTO.class);
-		int userId = dto.getUserId();
+		int userId = UserRepository.getTrenutniUser().getId();
 		int rezervacijaId = dto.getRezervacijaId();
+		if(!UserRepository.getTrenutniUser().getRezervacijeId().contains(rezervacijaId)) {
+			response.status(400);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Nepostojeća rezervacija.");	
+			return message;
+		}
 		Rezervacija rez = RezervacijaRepository.getRezervacijaById(rezervacijaId);
+		System.out.println(rez.getStatus());
+		System.out.println(rez.getId());
+		if(!rez.getStatus().equals(Status.KREIRANA) && !rez.getStatus().equals(Status.PRIHVACENA)) {
+			response.status(400);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Neuspešno otkazivanje.");	
+			return message;
+		}
 		Apartman ap = ApartmanRepository.getApartmanById(rez.getApartmanId());
 		ApartmanRepository.otkaziRezervaciju(ap, rez);
 		rez.setStatus(Status.ODUSTANAK);
@@ -145,6 +164,42 @@ public class LoginService {
 					halt(401, message.toString());
 			    }
 			    else {
+			    UserRepository.setTrenutniUser(UserRepository.findOne(username));
+				System.out.println(claims.getBody().getSubject() + " logged in.");
+			    }
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				JsonObject message = new JsonObject();
+				message.addProperty("message", "Token nije validan.");
+				halt(401, message.toString());
+			}
+		}else {
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Token nije poslat.");
+			halt(401, message.toString());
+		};
+	};
+	
+	public static Filter authenticateDomacin = (Request request, Response response) -> {
+		String auth = request.headers("Authorization");
+		System.out.println("Authorization: " + auth);
+		if ((auth != null) && (auth.contains("Bearer "))) {
+			String jwt = auth.substring(auth.indexOf("Bearer ") + 7);
+			try {
+			    Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt);
+			    String username = claims.getBody().getSubject();
+			    if(UserRepository.findOne(username) == null) {
+			    	JsonObject message = new JsonObject();
+					message.addProperty("message", "Domaćin sa datim korisničkim imenom ne postoji.");
+					halt(401, message.toString());
+			    }
+			    else if(!UserRepository.findOne(username).getUloga().equals(Uloga.DOMACIN)) {
+			    	JsonObject message = new JsonObject();
+					message.addProperty("message", "Korisnik nije domaćin.");
+					halt(401, message.toString());
+			    }
+			    else {
+			    UserRepository.setTrenutniUser(UserRepository.findOne(username));
 				System.out.println(claims.getBody().getSubject() + " logged in.");
 			    }
 			} catch (Exception e) {

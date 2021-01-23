@@ -34,7 +34,6 @@ Vue.component('landing-page', {
     },
     template: /*html*/`
     <div class="container-fluid">
-        <my-header></my-header>
         <div class="row search" style="height:750px;">
         <div class="row mt-5" style="height:60px;">
             <div class="col"></div>

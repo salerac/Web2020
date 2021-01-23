@@ -14,16 +14,21 @@ Vue.component('pregled-apartmana',{
             sort: false,
             apartmaniPoTipu: null,
             apartmaniPoSadrzaju: null,
+            domacin: false,
+            config: null,
             }
     },
     template: /*html*/`
     <div class="container-fluid pregled-pozadina" v-on:click="sakrijFiltere">
-        <my-header></my-header>
         <div class="row">
-            <div class="col-1"></div>
+            <div class="col-1" v-if="!domacin"></div>
             <div class="col">
-                <div class="row mt-3">
+                <div class="row mt-3" v-if="!domacin">
                     <h1>Pronađen smeštaj</h1>
+                </div>
+                <div class="row mt-3" v-if="domacin">
+                    <h3><b>Vaši apartmani</b></h3>
+                    <hr/>
                 </div>
                 <div class="row mt-3">
                     <div class="col-3" style="width:400px;">
@@ -193,11 +198,19 @@ Vue.component('pregled-apartmana',{
                     sadrzaji.push(this.sadrzaj[i].id);
                 }
             }
+            if(this.domacin == true){
+                getPath = "/domacin/filtrirajDomacinApartmane";
+            }
+            else{
+                getPath = "/filtrirajApartmane";
+            }
             axios
-                .get('/filtrirajApartmane', {
+                .get(getPath, {
+                    headers: this.config.headers,
                     params: {
                         tip: value,
-                        sadrzaj: {  sadrzaji }
+                        sadrzaj: {  sadrzaji },
+                        headers: this.config.headers,
                     }
                 }
                 )
@@ -219,13 +232,36 @@ Vue.component('pregled-apartmana',{
                     this.filtriraniApartmani = response.data;
                     this.brojRedova = Math.ceil(this.apartmani.length/5);
                 })
-            }
+            },
+        getDomacinApartmani: function(){
+            axios
+                .get("/domacin/getDomacinApartmani", this.config)
+                .then(response => {
+                    this.apartmani = response.data;
+                    this.filtriraniApartmani = response.data;
+                    this.brojRedova = Math.ceil(this.apartmani.length/5);
+                })
+        }
            
          },
     created: function(){
         if(this.apartmani == null){
         console.log(this.$route.query);
-        this.getApartmani();
+        this.domacin = this.$attrs.domacin;
+        if(typeof this.domacin == 'undefined'){
+            this.domacin = false;
+        }
+        if(this.domacin == false){
+            this.getApartmani();
+        }
+        else{
+            user = JSON.parse(localStorage.getItem('user'));
+            header = "Bearer " + user.jwt;
+            this.config = {
+                headers: {'Authorization': header},
+            }
+            this.getDomacinApartmani();
+        }
         }
         axios
         .get('/getSadrzaji')

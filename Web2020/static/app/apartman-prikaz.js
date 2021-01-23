@@ -11,7 +11,6 @@ Vue.component('apartman-prikaz', {
     },
     template:/*html*/`
     <div class="container-fluid">
-        <my-header></my-header>
         <div class="row mt-4">
             <div class="col-2"></div>
             <div class="col">

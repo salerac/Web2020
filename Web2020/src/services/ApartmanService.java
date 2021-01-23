@@ -48,7 +48,17 @@ public class ApartmanService{
 		ArrayList<ApartmanResponse> dto = convertToDTO(a);
 		return g.toJson(dto.get(0));
 	};
-	
+	public static Route getDomacinApartmani = (Request request, Response response) -> {
+		User u = UserRepository.getTrenutniUser();
+		ArrayList<Integer> apartmaniId = u.getApartmaniId();
+		ArrayList<Apartman> apartmani = new ArrayList<Apartman>();
+		for(int i : apartmaniId) {
+			apartmani.add(ApartmanRepository.getApartmanById(i));
+		}
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		return g.toJson(ret);
+		
+	};
 	public static Route addApartman = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.body();
@@ -65,7 +75,10 @@ public class ApartmanService{
 		
 		Apartman apartman = new Apartman(a.getTip(), a.getBrojSoba(), a.getBrojGostiju(), lokacija.getId(),
 				a.getDatumi(), slike, a.getCena(), a.getVremePrijave(), a.getVremeOdjave(), a.getSadrzaj());
+		apartman.setDomacinUsername(UserRepository.getTrenutniUser().getUsername());
 		ApartmanRepository.addApartman(apartman);
+		UserRepository.getTrenutniUser().getApartmaniId().add(apartman.getId());
+		UserRepository.saveUsers();
 		
 		return request;
 		
@@ -157,7 +170,6 @@ public class ApartmanService{
 		Rezervacija rez = g.fromJson(payload, Rezervacija.class);
 		User u = UserRepository.getUserById(rez.getGostId());
 		Apartman apartman = ApartmanRepository.getApartmanById(rez.getApartmanId());
-		
 		try {
 		ApartmanRepository.addRezervacijaToApartman(apartman.getId(), rez);
 		}
@@ -210,6 +222,46 @@ public class ApartmanService{
 		ArrayList<ApartmanResponse> ret = convertToDTO(apartmaniPoTipu);
 		return g.toJson(ret);
 	});
+	
+	public static Route filtrirajDomacinApartmane = (Request request, Response response) -> {
+		response.type("application/json");
+		String payloadSadrzaj = request.queryParams("sadrzaj");
+		SadrzajiDTO sadrzajDTO = g.fromJson(payloadSadrzaj, SadrzajiDTO.class);
+		ArrayList<Integer> sadrzajiId = sadrzajDTO.getSadrzaji();
+		ArrayList<Sadrzaj> sadrzaji = new ArrayList<Sadrzaj>();
+		for (int i : sadrzajiId) {
+			Sadrzaj s = SadrzajRepository.getSadrzajById(i);
+			sadrzaji.add(s);
+		}
+		String payloadTip = request.queryParams("tip");
+		boolean tipPostoji = true;
+		boolean tip = false;
+		try {
+			tip = g.fromJson(payloadTip, Boolean.class);
+		}
+		catch(Exception e) {
+			tipPostoji = false;
+		}
+		ArrayList<Apartman> pocetni = new ArrayList<Apartman>();
+		for(int i : UserRepository.getTrenutniUser().getApartmaniId()) {
+			pocetni.add(ApartmanRepository.getApartmanById(i));
+		}
+		ArrayList<ApartmanResponse> ret = convertToDTO(filter(pocetni,sadrzaji,tip,tipPostoji));
+		return g.toJson(ret);
+	};
+	public static ArrayList<Apartman> filter(ArrayList<Apartman> pocetni, ArrayList<Sadrzaj> sadrzaji, boolean tip, boolean tipPostoji){
+		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
+			pocetni = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji);
+		}
+		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
+		if(!tipPostoji == false) {
+			apartmaniPoTipu = ApartmanRepository.getApartmaniByTip(tip, pocetni);
+		}
+		else {
+			apartmaniPoTipu = pocetni;
+		}
+		return apartmaniPoTipu;
+	}
 	/*public static Route getApartmaniBySadrzaj = (Request request, Response response) -> {
 		response.type("application/json");
 		Set<String> payload = request.queryParams();

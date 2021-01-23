@@ -8,7 +8,7 @@ Vue.component('rezervacija',{
             krajnjiDatum: null,
             showDatum: "",
             showDatumKraj: "",
-            brojNocenja: 0,
+            brojNocenja: 1,
             poruka: null,
             minus1: "height:25px;width:25px;opacity:0.3;",
             minus2: "height:25px;width:25px;opacity:1",
@@ -20,7 +20,6 @@ Vue.component('rezervacija',{
     },
     template:/*html*/`
     <div class="container-fluid h-100">
-        <my-header></my-header>
         <div class="row h-100 mt-5">
             <div class="col"></div>
             <div class="col-4 border shadow my-auto pl-4 pr-4">
@@ -106,14 +105,14 @@ Vue.component('rezervacija',{
     `,
     methods: {
         umanjiBrojNocenja: function(e){
-            if(this.brojNocenja == 0) return;
+            if(this.brojNocenja == 1) return;
             this.brojNocenja--;
             this.minus2 = "height:25px;width:25px;opacity:1;";
             date = new Date(this.krajnjiDatum);
             date.setDate(date.getDate() - 1);
             this.krajnjiDatum = date.getTime();
             this.showDatumKraj = new Intl.DateTimeFormat('sr-Latn-RS').format(date);
-            if(this.brojNocenja == 0)
+            if(this.brojNocenja == 1)
                 this.minus1 = "height:25px;width:25px;opacity:0.3;";
         },
         uvecajBrojNocenja: function(e){
@@ -186,7 +185,12 @@ Vue.component('rezervacija',{
         
     },
     created: function(){
-        this.$root.$on('reload', () => {
+        this.$root.$on('logout', () => {
+            if(!this._inactive){     
+            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
+            }
+        });
+        this.$root.$on('logoin', () => {
             this.load();
         })
     },
@@ -215,19 +219,32 @@ Vue.component('rezervacija',{
                 }
             }
             if(new Date(this.pocetniDatum) <= date && date <= new Date(this.krajnjiDatum) && this.apartman.datumi.includes(date.getTime())){
-                console.log(new Date(this.pocetniDatum))
-                console.log(date);
-                console.log(new Date(this.krajnjiDatum))
                 element.style.backgroundColor = "aquamarine";
                 element.style.color = "white";
             }
         });
         this.myCalendar.onDateClick((event, date) => {
             if(date >= new Date() && this.apartman.datumi.includes(date.getTime())){
-                this.brojNocenja = 0;
+                this.brojNocenja = 1;
                 this.myCalendar.set(date);
                 this.pocetniDatum = date.getTime();
                 this.krajnjiDatum = this.pocetniDatum;
+                datumProvere = new Date(this.krajnjiDatum);
+                datumProvere.setDate(datumProvere.getDate() + 1);
+                if(!this.apartman.datumi.includes(datumProvere.getTime())){
+                    this.minus2 = "height:25px;width:25px;opacity:0.3;";
+                }
+                else{
+                    this.minus2 = "height:25px;width:25px;opacity:1;";
+                }
+                datumProvere = new Date(this.pocetniDatum);
+                datumProvere.setDate(datumProvere.getDate() - 1);
+                if(!this.apartman.datumi.includes(datumProvere.getTime()) || this.brojNocenja == 1){
+                    this.minus1 = "height:25px;width:25px;opacity:0.3;";
+                }
+                else {
+                    this.minus1 = "height:25px;width:25px;opacity:1;";
+                }
                 this.showDatum = new Intl.DateTimeFormat('sr-Latn-RS').format(this.pocetniDatum);
                 console.log(this.showDatum);
                 this.prikaziNocenja = true;

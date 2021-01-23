@@ -21,7 +21,15 @@ public class UserRepository {
 	private final static String PATH = "database/users.json";
 	private static Gson gson = new Gson();
 	private static int globalId = 0;
+	private static User trenutniUser;
 	
+	
+	public static User getTrenutniUser() {
+		return trenutniUser;
+	}
+	public static void setTrenutniUser(User trenutniUser) {
+		UserRepository.trenutniUser = trenutniUser;
+	}
 	public static void loadUsers() throws IOException
 	{
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));

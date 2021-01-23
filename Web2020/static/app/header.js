@@ -40,6 +40,9 @@ Vue.component('my-header', {
                             <span class="my-auto" v-on:click="goToDashboard()">Vaš profil</span>
                         </div>
                         <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="!checkUser()">
+                            <span class="my-auto" v-on:click="goToDashboardRez()">Vaše rezervacije</span>
+                        </div>
+                        <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="!checkUser()">
                             <span class="my-auto" v-on:click="logout()">Izlogujte se</span>
                         </div>
                     </div>
@@ -82,6 +85,12 @@ Vue.component('my-header', {
         goToDashboard: function(){
             this.toggleDrop();
             this.$router.push({name: "dashboard"});
+            this.$root.$emit("promeniTab", 0);
+        },
+        goToDashboardRez: function(){
+            this.toggleDrop();
+            this.$router.push({name: "dashboard", params: {tab: 1}});
+            this.$root.$emit("promeniTab", 1);
         }
     } 
 })
