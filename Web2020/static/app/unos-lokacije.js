@@ -17,16 +17,16 @@ Vue.component('unos-lokacije',{
         </div> 
         <div class="row m-3 ml-0">
             <div class="col p-0">
-                <input class="login-input form-control mb-3" v-model="ulica" id="search" ref="search" type="text" placeholder="Ulica">
-                <input class="login-input form-control" v-model="grad" id="search" ref="search1" type="text" placeholder="Grad">
+                <input class="login-input form-control mb-3" v-model="ulica" id="search" ref="search" type="text" placeholder="Ulica" v-on:input="validiraj()">
+                <input class="login-input form-control" v-model="grad" id="search" ref="search1" type="text" placeholder="Grad" v-on:input="validiraj()">
             </div>
             <div class="col">
-                <input class="login-input form-control mb-3" min="0" type="number" v-model="broj" id="search" ref="search1" style="width:100px;" placeholder="Broj">
-                <input class="login-input form-control mb-3" min="0" type="number" v-model="postanskiBroj" id="search" ref="search1" style="width:200px;" placeholder="Poštanski broj">
+                <input class="login-input form-control mb-3" min="0" type="number" v-model="broj" id="search" ref="search1" style="width:100px;" placeholder="Broj" v-on:input="validiraj()">
+                <input class="login-input form-control mb-3" min="0" type="number" v-model="postanskiBroj" id="search" ref="search1" style="width:200px;" placeholder="Poštanski broj" v-on:input="validiraj()">
             </div>
         </div>
         <div class="row">
-                <h5>Klikom na mapu obelezite lokaciju smestaja</h5>
+                <h5>Klikom na mapu obeležite lokaciju smeštaja</h5>
         </div>
         <div class="row m-0" style="height:300px;width:100%;">
             <div class="col p-0">
@@ -49,6 +49,15 @@ Vue.component('unos-lokacije',{
             this.map.addListener('click', e => {
                 this.staviMarker(e.latLng);
             });
+        },
+        validiraj: function(){
+            if(this.ulica != "" && this.ulica != null && this.broj != "" && this.broj != null && this.grad != "" && this.grad != null && this.postanskiBroj != "" && this.postanskiBroj != null){
+                this.$root.$emit("validiraj", true);
+            }
+            else{
+                console.log(this.slike.length)
+                this.$root.$emit("validiraj", false);
+            }
         },
         staviMarker: function(position){
             this.marker.setPosition(position);
@@ -115,7 +124,11 @@ Vue.component('unos-lokacije',{
         this.$root.$on('submitPodatke',() => {
             this.$root.$emit('submitLokacija', this.ulica, this.broj, this.grad, this.postanskiBroj, this.lokacija);
         })
+        this.$root.$emit("validiraj", false)
         
-    } 
+    },
+    updated: function(){
+        this.validiraj();
+    }
 
 })

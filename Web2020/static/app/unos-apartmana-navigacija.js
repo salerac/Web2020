@@ -5,6 +5,7 @@ Vue.component('unos-apartmana-navigacija',{
             stilNazad: 'height:50px;width:50px;opacity:0.3;',
             tekstDugmeta: 'Nastavi',
             klasa: "col p-0 border d-flex align-items-center justify-content-center bg-primary pointer-cursor",
+            //disabled: "opacity:0.3;pointer-events: none",
         }
     },
     template: /*html*/`
@@ -12,7 +13,7 @@ Vue.component('unos-apartmana-navigacija',{
         <div class="col-2 p-0 mr-1 border border-solid pointer-cursor" :style="stilNazad">
             <img src="/icons/back.png" class="border p-1" style="height:100%;width:100%;" v-on:click="vrati(); proveriPoziciju();">
         </div>
-        <div :class="klasa" v-on:click="nastavi($event); proveriPoziciju();">
+        <div :class="klasa" v-on:click="nastavi($event); proveriPoziciju();" :style="disabled">
             <b>{{tekstDugmeta}}</b>
         </div>
     </div>
@@ -27,6 +28,12 @@ Vue.component('unos-apartmana-navigacija',{
             console.log('dobio')
             this.lokacija = arg;
         })
+       /*this.$root.$on('validiraj',(arg) => {
+            if(arg){
+                this.disabled = ""
+            }
+            else this.disabled = "opacity:0.3;pointer-events: none";
+        })*/
     },
     methods: {
         nastavi: function(e){
@@ -42,6 +49,7 @@ Vue.component('unos-apartmana-navigacija',{
             this.stilNazad = "height:50px;width:50px;opacity:1;";
             this.lokacija++;
             }
+            
         },
         vrati: function(){
             if(this.proveriPoziciju() == 0)
@@ -58,6 +66,7 @@ Vue.component('unos-apartmana-navigacija',{
             this.lokacija--;
             this.proveriPoziciju();
             }
+            //this.disabled = "opacity:1;";
         },
         traziLokaciju: function(){
             this.$root.$emit('traziLokaciju')

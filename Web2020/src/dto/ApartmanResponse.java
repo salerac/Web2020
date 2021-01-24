@@ -22,7 +22,6 @@ public class ApartmanResponse {
 	private int vremeOdjave;
 	private boolean status;
 	private ArrayList<Sadrzaj> sadrzaji;
-	private ArrayList<Integer> rezervacijeId;
 	public ApartmanResponse(Apartman a, LokacijaResponse l, ArrayList<Sadrzaj> sadrzaji) {
 		super();
 		this.id = a.getId();
@@ -39,7 +38,6 @@ public class ApartmanResponse {
 		this.vremeOdjave = a.getVremeOdjave();
 		this.status = a.isStatus();
 		this.sadrzaji = sadrzaji;
-		this.rezervacijeId = a.getRezervacijeId();
 	}
 	
 	

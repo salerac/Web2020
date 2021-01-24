@@ -15,7 +15,7 @@ Vue.component('detalji-apartmana',{
     template: /*html*/`
     <div class="col-md container pl-0" style="width:120%;">
             <div class="row">
-                <h2>Detalji o smestaju</h2>
+                <h2>Detalji o smeštaju</h2>
             </div> 
         <div class="row m-3 ml-0">
             <div class="col-7 pl-0">
@@ -26,7 +26,7 @@ Vue.component('detalji-apartmana',{
                     <label class="font-weight-bold">Broj gostiju:</label>
                 </div>
                 <div class="mt-4">
-                    <label class="font-weight-bold">Cena po nocenju:</label>
+                    <label class="font-weight-bold">Cena po noćenju:</label>
                 </div>
                 <div class="mt-5">
                     <label class="font-weight-bold">Dodajte slike:</label>
@@ -44,13 +44,13 @@ Vue.component('detalji-apartmana',{
                     <img src="/icons/plus.png" id="plus2" class="rounded-circle border p-1 ml-3 plusminus" style="height:25px;width:25px" v-on:click="uvecajBrojGostiju">
                 </div>
                 <div class="d-flex align-items-center mt-3">
-                    <input v-model="cena" min="0" type="number" class="login-input form-control d-inline mb-3" style="width:150px;">
+                    <input v-model="cena" min="0" type="number" class="login-input form-control d-inline mb-3" style="width:150px;" v-on:input="validiraj()">
                     <span class="d-inline ml-2 pb-3">RSD</span>
                 </div>
                 <div class="mt-3">
                     <div class="custom-file">
                         <form ref="inputFile">
-                            <input type="file" class="custom-file-input" id="customFile" v-on:change="dodajSliku">
+                            <input type="file" class="custom-file-input" id="customFile" v-on:input="dodajSliku">
                         </form>
                     </div>
                 </div>
@@ -71,10 +71,20 @@ Vue.component('detalji-apartmana',{
             this.slike1.push(URL.createObjectURL(e.target.files[0]));
             var reader = new FileReader();
             reader.onloadend = () => {
-                console.log('RESULT', reader.result);
                 this.slike.push(reader.result);
+                this.validiraj();
             }
             reader.readAsDataURL(e.target.files[0]);
+            e.target.value = "";
+        },
+        validiraj: function(){
+            if(this.brojSoba != 0 && this.brojGostiju != 0 && this.cena != "" && this.slike.length != 0){
+                this.$root.$emit("validiraj", true);
+            }
+            else{
+                console.log(this.slike.length)
+                this.$root.$emit("validiraj", false);
+            }
         },
         prikaziX: function(index){ 
             this.$refs[index][0].style.display = "block";
@@ -85,29 +95,35 @@ Vue.component('detalji-apartmana',{
         ukloniSliku: function(e){
             this.slike.splice(e.target.dataset.id,1);
             this.slike1.splice(e.target.dataset.id,1);
+            this.validiraj();
         },
         umanjiBrojSoba: function(e){
             if(this.brojSoba == 0) return;
             this.brojSoba--;
             if(this.brojSoba == 0)
                 this.minus1 = "height:25px;width:25px;opacity:0.3;"; 
+            this.validiraj();   
         },
         uvecajBrojSoba: function(e){
             this.minus1 = "height:25px;width:25px;opacity:1;";
             this.brojSoba++;
+            this.validiraj();
         },
         umanjiBrojGostiju: function(e){
             if(this.brojGostiju == 0) return;
             this.brojGostiju--;
             if(this.brojGostiju == 0)
                 this.minus2 = "height:25px;width:25px;opacity:0.3;";
+                this.validiraj();
         },
         uvecajBrojGostiju: function(e){
             this.minus2 = "height:25px;width:25px;opacity:1;"; 
             this.brojGostiju++;
+            this.validiraj();
         }
     },
     mounted: function(){
+        this.$root.$emit('validiraj', false);
         this.$root.$on('submitPodatke',() => {
             this.$root.$emit('submitDetalji', this.brojSoba, this.brojGostiju, this.cena, this.slike);
         })

@@ -48,7 +48,42 @@ public class ApartmanRepository {
 	public static ArrayList<Apartman> getApartmani() {
 		return apartmani;
 	}
-
+	public static ArrayList<Apartman> getAktivniApartmani(){
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		for(Apartman a : apartmani) {
+			if(a.isStatus() == false) {
+				ret.add(a);
+			}
+		}
+		return ret;
+	}
+	public static ArrayList<Apartman> getNeaktivniApartmani(){
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		for(Apartman a : apartmani) {
+			if(a.isStatus() == true) {
+				ret.add(a);
+			}
+		}
+		return ret;
+	}
+	public static ArrayList<Apartman> getDomacinAktivniApartmani(String domacin){
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		for(Apartman a : apartmani) {
+			if(a.getDomacinUsername().equals(domacin) && a.isStatus() == false) {
+				ret.add(a);
+			}
+		}
+		return ret;
+	}
+	public static ArrayList<Apartman> getDomacinNeaktivniApartmani(String domacin){
+		ArrayList<Apartman> ret = new ArrayList<Apartman>();
+		for(Apartman a : apartmani) {
+			if(a.getDomacinUsername().equals(domacin) && a.isStatus() == true) {
+				ret.add(a);
+			}
+		}
+		return ret;
+	}
 	public static void setApartmani(ArrayList<Apartman> apartmani) {
 		ApartmanRepository.apartmani = apartmani;
 	}
@@ -97,6 +132,34 @@ public class ApartmanRepository {
 			throw new Exception();
 		}
 	}
+	public static boolean proveriDostupnost(int apartmanId, Rezervacija rez) throws Exception {
+		Apartman a = ApartmanRepository.getApartmanById(apartmanId);
+
+		int brojNocenja = rez.getBrojNocenja();
+		Date pocetniDatum = new Date(rez.getPocetniDatum());
+		ArrayList<Long> datumi = (ArrayList<Long>) a.getDatumi().clone();
+		
+		int brojac = 0;
+		
+		for(int i = 0; i < brojNocenja; i++) {
+			Calendar c = Calendar.getInstance(); 
+			c.setTime(pocetniDatum); 
+			c.add(Calendar.DATE, i);
+			long datumLong = c.getTime().getTime();
+			for(int j = 0; j < a.getDatumi().size(); j++) {
+				if(a.getDatumi().get(j) == datumLong) {
+					brojac++;
+				}
+			}
+		}
+		if(brojac == brojNocenja) {
+			return true;
+		}
+		else {
+			a.setDatumi(datumi);
+			throw new Exception();
+		}
+	}
 	public static void otkaziRezervaciju(Apartman a, Rezervacija r) throws IOException {
 		Date pocetniDatum = new Date(r.getPocetniDatum());
 		int brojNocenja = r.getBrojNocenja();
@@ -119,7 +182,7 @@ public class ApartmanRepository {
 	}
 	public static ArrayList<Apartman> getApartmanByGrad(String grad, ArrayList<Apartman> ulazni) {
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> a = new ArrayList<Apartman>();
 		for(int i = 0; i < ulazni.size(); i++) {
@@ -131,7 +194,7 @@ public class ApartmanRepository {
 	}
 	public static ArrayList<Apartman> getApartmanByDatumi(long datumOd, long datumDo, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> ret = new ArrayList<Apartman>();
 		Date startDate = new Date(datumOd);
@@ -170,7 +233,7 @@ public class ApartmanRepository {
 	}
 	public static ArrayList<Apartman> getApartmanByCena(double cenaOd, double cenaDo, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		for(int i = 0; i < ulazni.size(); i++) {
@@ -182,7 +245,7 @@ public class ApartmanRepository {
 	}
 	public static ArrayList<Apartman> getApartmanByBrojSoba(int minSoba, int maxSoba, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		for(int i = 0; i < ulazni.size(); i++) {
@@ -194,7 +257,7 @@ public class ApartmanRepository {
 	}
 	public static ArrayList<Apartman> getApartmanByBrojGostiju(int brojGostiju, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		for(int i = 0; i < ulazni.size(); i++) {
@@ -212,26 +275,29 @@ public class ApartmanRepository {
 		}
 		return s;
 	}
-	public static ArrayList<Apartman> getApartmaniBySadrzaj(ArrayList<Sadrzaj> sadrzaji){
+	public static ArrayList<Apartman> getApartmaniBySadrzaj(ArrayList<Sadrzaj> sadrzaji, ArrayList<Apartman> ulazni){
+		if(ulazni == null || ulazni.isEmpty()) {
+			ulazni = getAktivniApartmani();
+		}
 		int potrebanBroj = sadrzaji.size();
 		ArrayList<Apartman> ret = new ArrayList<Apartman>();
-		for(int i = 0; i < apartmani.size(); i++) {
+		for(int i = 0; i < ulazni.size(); i++) {
 			int broj = 0;
 			for(int j = 0; j < sadrzaji.size(); j++) {
-				for(int k = 0; k < apartmani.get(i).getSadrzajiId().size(); k++) {
-					if(sadrzaji.get(j).getId() == apartmani.get(i).getSadrzajiId().get(k)) {
+				for(int k = 0; k < ulazni.get(i).getSadrzajiId().size(); k++) {
+					if(sadrzaji.get(j).getId() == ulazni.get(i).getSadrzajiId().get(k)) {
 						broj++;
 					}
 				}
 			}
 			if(broj == potrebanBroj)
-				ret.add(apartmani.get(i));
+				ret.add(ulazni.get(i));
 		}
 		return ret;
 	}
 	public static ArrayList<Apartman> getApartmaniByTip(boolean tip, ArrayList<Apartman> ulazni){
 		if(ulazni == null || ulazni.isEmpty()) {
-			ulazni = apartmani;
+			ulazni = getAktivniApartmani();
 		}
 		ArrayList<Apartman> ret = new ArrayList<Apartman>();
 		for(int i = 0; i < ulazni.size(); i++) {

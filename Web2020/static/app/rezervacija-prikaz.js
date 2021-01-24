@@ -5,6 +5,7 @@ Vue.component('rezervacija-prikaz', {
                 rezervacija: Object
             },
             rezervacija: null,
+            domacin: false,
         }
     },
     template:/*html*/`
@@ -24,13 +25,22 @@ Vue.component('rezervacija-prikaz', {
         <div class="row">
             <span>Status: <h5><b>{{rezervacija.status}}</b></h5></span>
         </div>
-        <div class="row" style="height:50px;">
+        <div class="row" style="height:50px;" v-if="!domacin">
             <div class="col">
                 <button class="btn btn-light border mb-2" v-if="prikazOdustani()" v-on:click="potvrdi()">Odustani</button>
             </div>
             <div class="col">
             </div>
             <div class="col"></div>
+        </div>
+        <div class="row" style="height:50px;" v-if="domacin">
+            <div class="col pr-1">
+                <button class="btn btn-light border mb-2 p-1" v-if="checkKreirana() && !checkZavrsena()" v-on:click="prihvati()">Prihvati</button>
+                <button class="btn btn-light border mb-2 p-1" v-if="checkZavrsena()">Završi</button>
+            </div> 
+            <div class="col pl-0">
+                <button class="btn btn-light border mb-2 p-1" v-if="checkKreiranaPrihvacena() && !checkZavrsena()" v-on:click="odbij()">Odbij</button>
+            </div>
         </div>
 
         <!-- Modal -->
@@ -75,6 +85,37 @@ Vue.component('rezervacija-prikaz', {
               return false;
           }
       },
+      checkKreirana: function(){
+          if(this.rezervacija.status == "KREIRANA"){
+              return true;
+          }
+          else{
+              return false;
+          }
+      },
+      checkKreiranaPrihvacena: function(){
+        if(this.rezervacija.status == "KREIRANA" || this.rezervacija.status == "PRIHVACENA"){
+            return true;
+        }
+        else{
+            return false;
+        }
+    
+    },
+      checkZavrsena: function(){
+        pocetni = new Date(this.rezervacija.pocetniDatum);
+        krajnji = new Date();
+        krajnji.setDate(pocetni.getDate() + this.rezervacija.brojNocenja);
+        trenutni = new Date();
+        console.log(new Date(krajnji))
+        console.log(new Date(trenutni.setDate(trenutni.getDate() + 1)))
+        if(krajnji < trenutni.setDate(trenutni.getDate() + 1)){
+            return true;
+        }
+        else {
+            return false;
+        }
+      },
       potvrdi: function(){
         $('#myModal' + this.rezervacija.id).modal('show');
       },
@@ -85,7 +126,6 @@ Vue.component('rezervacija-prikaz', {
         $('#myModal' + this.rezervacija.id).modal('hide');
         user = JSON.parse(localStorage.getItem('user'));  
         userId = user.id;
-        console.log(this.rezervacija.id)
         header = "Bearer " + user.jwt;
         axios.delete("/gost/odustaniOdRezervacije", {
             headers: {
@@ -99,9 +139,32 @@ Vue.component('rezervacija-prikaz', {
         .then(response => {
             this.$root.$emit("izmena");
         });
+      },
+      odbij: function(){
+        user = JSON.parse(localStorage.getItem('user'));  
+        userId = user.id;
+        header = "Bearer " + user.jwt;
+        axios
+            .post("/domacin/odbijRezervaciju", this.rezervacija, {headers: {'Authorization': header}})
+            .then(() => {
+                this.$root.$emit("izmena");
+            }) 
+      },
+      prihvati: function(){
+        user = JSON.parse(localStorage.getItem('user'));  
+        userId = user.id;
+        header = "Bearer " + user.jwt;
+        axios
+            .post("/domacin/prihvatiRezervaciju", this.rezervacija, {headers: {'Authorization': header}})
+            .then(() => {
+                this.$root.$emit("izmena");
+            }) 
       }  
     },
     mounted: function(){
+        if(this.$attrs.domacin == true){
+            this.domacin = true;
+        }
         this.rezervacija = this.$attrs.rezervacija;
     }
 })

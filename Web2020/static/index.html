@@ -12,9 +12,12 @@
 </head>
 <body>
 	<div id="main" class="limiter">
-		<my-header></my-header>
-			<router-view :key="$route.fullPath"></router-view>
-		
+		<div class="container-fluid">
+			<my-header></my-header>
+			<div class="row">
+				<router-view :key="$route.fullPath"></router-view>
+			</div>
+		</div>
 	</div>
 
 	<script type="text/javascript" src="js/jquery-3.5.1.js"></script>
@@ -45,6 +48,7 @@
 	<script src="app/licni-podaci.js"></script>
 	<script src="app/pregled-rezervacija.js"></script>
 	<script src="app/rezervacija-prikaz.js"></script>
+	<script src="app/pregled-apartmana-neaktivni.js"></script>
 	<script src="app/app.js"></script>
 </body>
 </html>

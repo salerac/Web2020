@@ -9,7 +9,7 @@ Vue.component('tip-objekta', {
     <div class="row p-0 m-0" style="width:100%;">
         <div class="col">
             <div class="row">
-                <h2>Odaberite tip smestaja</h2>
+                <h2>Odaberite tip smeštaja</h2>
             </div>  
             <div v-bind:class="rowClass" :ref="0" v-on:click="selectOption($event,0)" >
                 <div class="col-3 p-3 d-flex align-items-center h-100">
@@ -39,6 +39,7 @@ Vue.component('tip-objekta', {
             this.$refs[1].className = this.rowClass;
             this.$refs[target].className = "row height-row border mt-3 highlighted-input";
             this.selectedElement = target;
+            this.$root.$emit('validiraj', true);
         }
     },
     mounted: function(){

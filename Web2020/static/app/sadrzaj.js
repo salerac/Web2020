@@ -11,11 +11,11 @@ Vue.component('sadrzaj',{
     },
     template:/*html*/`
     <div class="col">
-        <div class="row" v-if="$attrs.tekst">
-            <h2>Sadrzaj</h2>
+        <div class="row" >
+            <h2>Sadržaj</h2>
         </div>
-        <div class="row" v-if="$attrs.tekst">
-            <h5>Selektujte sta vas apartman sadrzi</h5>
+        <div class="row" >
+            <h5>Selektujte šta vas apartman sadrži</h5>
         </div>  
         <div v-for="red in brojRedova" class="row mt-2">
             <div class="col">

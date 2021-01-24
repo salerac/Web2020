@@ -18,6 +18,7 @@ import repositories.SadrzajRepository;
 import repositories.UserRepository;
 import services.ApartmanService;
 import services.LoginService;
+import services.RezervacijaService;
 import services.SadrzajService;
 public class Main {
 
@@ -46,7 +47,6 @@ public class Main {
 		
 		post("/login", LoginService.handleLogin);
 		post("/registerGost", LoginService.registerGost);
-		post("/addApartman", ApartmanService.addApartman);
 		post("/addSadrzaj", SadrzajService.addSadrzaj);
 		post("/searchApartmani",ApartmanService.searchApartman);
 		get("/getSadrzaji", SadrzajService.getSadrzaji);
@@ -63,8 +63,14 @@ public class Main {
 		path("/domacin", () -> {
 			before("/*", LoginService.authenticateDomacin);
 			post("/editGost", LoginService.editUser);
+			post("/odbijRezervaciju", RezervacijaService.odbijRezervaciju);
+			post("/prihvatiRezervaciju", RezervacijaService.prihvatiRezervaciju);
+			post("/aktivirajApartman", ApartmanService.aktivirajApartman);
 			get("/getDomacinApartmani", ApartmanService.getDomacinApartmani);
+			get("/getDomacinNeaktivni", ApartmanService.getDomacinNeaktivni);
+			post("/addApartman", ApartmanService.addApartman);
 			get("/filtrirajDomacinApartmane", ApartmanService.filtrirajDomacinApartmane);
+			get("/getApartmanRezervacije", ApartmanService.getApartmanRezervacije);
 		});
 	}
 

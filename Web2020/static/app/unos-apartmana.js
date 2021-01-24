@@ -24,7 +24,7 @@ Vue.component('unos-apartmana', {
     template:/*html*/ `
         <div>
             <div class="container-fluid">
-                <div class="row">
+                <div class="row mt-4">
                     <div class="col" v-bind:key="1"></div>
                     <div class="col-md-3 p-0">
                             <transition @before-leave="beforeLeave" name="fade" mode="out-in">
@@ -78,8 +78,11 @@ Vue.component('unos-apartmana', {
             this.apartman.vremePrijave = vremePrijave;
             this.apartman.vremeOdjave = vremeOdjave;
             this.apartman.datumi = datumi;
+            user = JSON.parse(localStorage.getItem('user'));  
+            userId = user.id;
+            header = "Bearer " + user.jwt;
             axios
-                .post('/addApartman', this.apartman)
+                .post('/domacin/addApartman', this.apartman, {headers: {'Authorization': header}})
                 .then(response => {
                     alert("dodao");
                 })

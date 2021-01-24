@@ -50,7 +50,7 @@ Vue.component('unos-vremena-datuma', {
         </div>
         <div class="row mt-1">
             <div class="col">
-                <b>Pocetni datum:</b>
+                <b>Početni datum:</b>
             </div>
             <div class="col">
                 <b>Krajnji datum:</b>

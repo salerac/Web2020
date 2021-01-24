@@ -26,6 +26,11 @@ const router = new VueRouter({
 			component: PregledApartmana,
 		},
 		{
+			path: "/unosApartmana",
+			name: "unosApartmana",
+			component: UnosApartmana
+		},
+		{
 			path: "/apartman",
 			name: "apartman",
 			component: ApartmanPrikaz,

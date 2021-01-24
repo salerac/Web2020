@@ -20,6 +20,7 @@ import beans.Apartman;
 import beans.Lokacija;
 import beans.Rezervacija;
 import beans.Sadrzaj;
+import beans.Status;
 import beans.User;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
@@ -51,13 +52,45 @@ public class ApartmanService{
 	public static Route getDomacinApartmani = (Request request, Response response) -> {
 		User u = UserRepository.getTrenutniUser();
 		ArrayList<Integer> apartmaniId = u.getApartmaniId();
-		ArrayList<Apartman> apartmani = new ArrayList<Apartman>();
-		for(int i : apartmaniId) {
-			apartmani.add(ApartmanRepository.getApartmanById(i));
-		}
+		ArrayList<Apartman> apartmani = ApartmanRepository.getDomacinAktivniApartmani(u.getUsername());
 		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
 		return g.toJson(ret);
 		
+	};
+	public static Route getDomacinNeaktivni = (Request request, Response response) -> {
+		User u = UserRepository.getTrenutniUser();
+		ArrayList<Integer> apartmaniId = u.getApartmaniId();
+		ArrayList<Apartman> apartmani = ApartmanRepository.getDomacinNeaktivniApartmani(u.getUsername());
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		return g.toJson(ret);
+		
+	};
+	public static Route getApartmanRezervacije = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.queryParams("id");
+		int id = Integer.parseInt(payload);
+		User u = UserRepository.getTrenutniUser();
+		if(!u.getApartmaniId().contains(id)) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Domaćin nema taj apartman u ponudi.");
+			return message ;
+		}
+		ArrayList<Integer> rezId = ApartmanRepository.getApartmanById(id).getRezervacijeId();
+		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
+		for(int i : rezId) {
+			ret.add(RezervacijaRepository.getRezervacijaById(i));
+		}
+		return g.toJson(ret);
+	};
+	public static Route aktivirajApartman = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		Apartman a = g.fromJson(payload, Apartman.class);
+		Apartman ret = ApartmanRepository.getApartmanById(a.getId());
+		ret.setStatus(false);
+		ApartmanRepository.saveApartmani();
+		return g.toJson(ret);
 	};
 	public static Route addApartman = (Request request, Response response) -> {
 		response.type("application/json");
@@ -76,6 +109,7 @@ public class ApartmanService{
 		Apartman apartman = new Apartman(a.getTip(), a.getBrojSoba(), a.getBrojGostiju(), lokacija.getId(),
 				a.getDatumi(), slike, a.getCena(), a.getVremePrijave(), a.getVremeOdjave(), a.getSadrzaj());
 		apartman.setDomacinUsername(UserRepository.getTrenutniUser().getUsername());
+		apartman.setStatus(true);
 		ApartmanRepository.addApartman(apartman);
 		UserRepository.getTrenutniUser().getApartmaniId().add(apartman.getId());
 		UserRepository.saveUsers();
@@ -90,7 +124,7 @@ public class ApartmanService{
 		SearchDTO search = g.fromJson(payload, SearchDTO.class);
 		ArrayList<Apartman> pronadjeni = new ArrayList<Apartman>();
 		ArrayList<ApartmanResponse> povratni = new ArrayList<ApartmanResponse>();
-		ArrayList<Apartman> svi = ApartmanRepository.getApartmani();
+		ArrayList<Apartman> svi = ApartmanRepository.getAktivniApartmani();
 		
 		String grad = search.getLokacija();
 		ArrayList<Apartman> apartmaniPoGradu = new ArrayList<Apartman>();
@@ -171,7 +205,7 @@ public class ApartmanService{
 		User u = UserRepository.getUserById(rez.getGostId());
 		Apartman apartman = ApartmanRepository.getApartmanById(rez.getApartmanId());
 		try {
-		ApartmanRepository.addRezervacijaToApartman(apartman.getId(), rez);
+		ApartmanRepository.proveriDostupnost(apartman.getId(), rez);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -183,9 +217,11 @@ public class ApartmanService{
 		rez.setSlika(apartman.getSlike().get(0));
 		RezervacijaRepository.addRezervacija(rez);
 		u.getRezervacijeId().add(rez.getId());
+		apartman.getRezervacijeId().add(rez.getId());
+		ApartmanRepository.saveApartmani();
 		UserRepository.saveUsers();
 		JsonObject message = new JsonObject();
-		message.addProperty("message", "Rezervacija je uspe�no dodata.");	
+		message.addProperty("message", "Rezervacija je uspešno dodata.");	
 		return message;
 		
 	};
@@ -208,9 +244,9 @@ public class ApartmanService{
 		catch(Exception e) {
 			tipPostoji = false;
 		}
-		ArrayList<Apartman> apartmaniPoSadrzaju = ApartmanRepository.getApartmani();
+		ArrayList<Apartman> apartmaniPoSadrzaju = ApartmanRepository.getAktivniApartmani();
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
-			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji);
+			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,null);
 		}
 		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
 		if(!tipPostoji == false) {
@@ -244,6 +280,7 @@ public class ApartmanService{
 		}
 		ArrayList<Apartman> pocetni = new ArrayList<Apartman>();
 		for(int i : UserRepository.getTrenutniUser().getApartmaniId()) {
+			if(ApartmanRepository.getApartmanById(i).isStatus() == false)
 			pocetni.add(ApartmanRepository.getApartmanById(i));
 		}
 		ArrayList<ApartmanResponse> ret = convertToDTO(filter(pocetni,sadrzaji,tip,tipPostoji));
@@ -251,7 +288,7 @@ public class ApartmanService{
 	};
 	public static ArrayList<Apartman> filter(ArrayList<Apartman> pocetni, ArrayList<Sadrzaj> sadrzaji, boolean tip, boolean tipPostoji){
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
-			pocetni = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji);
+			pocetni = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,null);
 		}
 		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
 		if(!tipPostoji == false) {

@@ -4,6 +4,7 @@ Vue.component('pregled-apartmana',{
             apartmani: null,
             filtriraniApartmani: null,
             brojRedova: 0,
+            brojKolona: null,
             showTip: false,
             selektovaniTipovi: [false, false],
             selektovanSadrzaj: [],
@@ -26,8 +27,12 @@ Vue.component('pregled-apartmana',{
                 <div class="row mt-3" v-if="!domacin">
                     <h1>Pronađen smeštaj</h1>
                 </div>
-                <div class="row mt-3" v-if="domacin">
-                    <h3><b>Vaši apartmani</b></h3>
+                <div class="row mt-3" v-if="domacin && !$attrs.neaktivni">
+                    <h3><b>Vaši aktivni apartmani</b></h3>
+                    <hr/>
+                </div>
+                <div class="row mt-3" v-if="$attrs.neaktivni">
+                    <h3><b>Vaši neaktivni apartmani</b></h3>
                     <hr/>
                 </div>
                 <div class="row mt-3">
@@ -103,6 +108,10 @@ Vue.component('pregled-apartmana',{
                     <div class="col"></div>
                 </div>
                 <div v-for="red in brojRedova" class="row mt-3">
+                    <div class="col" v-for="kolona in brojKolona">
+                        <apartman-detalji-mini class="pointer-cursor" v-if="displayDiv(brojKolona - kolona + 1, red)" :domacin="getDomacin()" :apartman="getIndex(brojKolona - kolona + 1, red)"></apartman-detalji-mini>
+                    </div>
+                    <!-- Modal 
                     <div class="col">
                         <apartman-detalji-mini class="pointer-cursor" v-if="displayDiv(5, red)" :apartman="getIndex(5, red)"></apartman-detalji-mini>
                     </div>
@@ -118,6 +127,7 @@ Vue.component('pregled-apartmana',{
                     <div class="col">
                         <apartman-detalji-mini class="pointer-cursor" v-if="displayDiv(1, red)" :apartman="getIndex(1, red)"></apartman-detalji-mini>
                     </div>
+                    -->
                 </div>
             </div>
             <div class="col-1"></div>
@@ -126,12 +136,13 @@ Vue.component('pregled-apartmana',{
     `,
     methods: {
         getIndex: function(i, red){
-            index = this.filtriraniApartmani[red*5 - i];
+            index = this.filtriraniApartmani[red*this.brojKolona - i];
             return index;
         },
         displayDiv: function(i, red)
         {
-            if(this.filtriraniApartmani.length <= red*5-i){
+            console.log(i);
+            if(this.filtriraniApartmani.length <= red*this.brojKolona - i){
                 return false;
             }
             return true;
@@ -225,6 +236,7 @@ Vue.component('pregled-apartmana',{
         },
         getApartmani: function(){
             pretraga = this.$route.query;
+            this.brojKolona = 5;
             axios
                 .post("/searchApartmani", pretraga)
                 .then(response => {
@@ -234,6 +246,18 @@ Vue.component('pregled-apartmana',{
                 })
             },
         getDomacinApartmani: function(){
+            this.brojKolona = 4;
+            if(this.$attrs.neaktivni == true){
+                axios
+                .get("/domacin/getDomacinNeaktivni", this.config)
+                .then(response => {
+                    this.apartmani = response.data;
+                    this.filtriraniApartmani = response.data;
+                    this.brojRedova = Math.ceil(this.apartmani.length/5);
+                })
+            }
+            else
+            { 
             axios
                 .get("/domacin/getDomacinApartmani", this.config)
                 .then(response => {
@@ -241,9 +265,18 @@ Vue.component('pregled-apartmana',{
                     this.filtriraniApartmani = response.data;
                     this.brojRedova = Math.ceil(this.apartmani.length/5);
                 })
+            }
+        },
+        getDomacin: function(){
+            if(this.domacin == true){
+                return true;
+            }
+            else{
+                return false;
+            }
         }
            
-         },
+    },
     created: function(){
         if(this.apartmani == null){
         console.log(this.$route.query);
@@ -252,6 +285,10 @@ Vue.component('pregled-apartmana',{
             this.domacin = false;
         }
         if(this.domacin == false){
+            header = "Bearer ";
+            this.config = {
+                headers: {'Authorization': header},
+            }
             this.getApartmani();
         }
         else{
