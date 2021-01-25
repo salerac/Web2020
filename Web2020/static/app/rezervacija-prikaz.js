@@ -6,6 +6,7 @@ Vue.component('rezervacija-prikaz', {
             },
             rezervacija: null,
             domacin: false,
+            admin: false,
         }
     },
     template:/*html*/`
@@ -164,6 +165,9 @@ Vue.component('rezervacija-prikaz', {
     mounted: function(){
         if(this.$attrs.domacin == true){
             this.domacin = true;
+        }
+        if(this.$attrs.admin == true){
+            this.admin = true;
         }
         this.rezervacija = this.$attrs.rezervacija;
     }

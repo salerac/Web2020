@@ -16,16 +16,21 @@ Vue.component('pregled-apartmana',{
             apartmaniPoTipu: null,
             apartmaniPoSadrzaju: null,
             domacin: false,
+            admin: false,
             config: null,
             }
     },
     template: /*html*/`
     <div class="container-fluid pregled-pozadina" v-on:click="sakrijFiltere">
         <div class="row">
-            <div class="col-1" v-if="!domacin"></div>
+            <div class="col-1" v-if="!domacin && !admin"></div>
             <div class="col">
-                <div class="row mt-3" v-if="!domacin">
+                <div class="row mt-3" v-if="!domacin && !admin">
                     <h1>Pronađen smeštaj</h1>
+                </div>
+                <div class="row mt-3" v-if="admin">
+                    <h3><b>Apartmani u sistemu</b></h3>
+                    <hr/>
                 </div>
                 <div class="row mt-3" v-if="domacin && !$attrs.neaktivni">
                     <h3><b>Vaši aktivni apartmani</b></h3>
@@ -109,7 +114,7 @@ Vue.component('pregled-apartmana',{
                 </div>
                 <div v-for="red in brojRedova" class="row mt-3">
                     <div class="col" v-for="kolona in brojKolona">
-                        <apartman-detalji-mini class="pointer-cursor" v-if="displayDiv(brojKolona - kolona + 1, red)" :domacin="getDomacin()" :apartman="getIndex(brojKolona - kolona + 1, red)"></apartman-detalji-mini>
+                        <apartman-detalji-mini class="pointer-cursor" v-if="displayDiv(brojKolona - kolona + 1, red)" :domacin="getDomacin()" :admin="getAdmin()" :apartman="getIndex(brojKolona - kolona + 1, red)"></apartman-detalji-mini>
                     </div>
                     <!-- Modal 
                     <div class="col">
@@ -246,14 +251,14 @@ Vue.component('pregled-apartmana',{
                 })
             },
         getDomacinApartmani: function(){
-            this.brojKolona = 4;
+            this.brojKolona = 3;
             if(this.$attrs.neaktivni == true){
                 axios
                 .get("/domacin/getDomacinNeaktivni", this.config)
                 .then(response => {
                     this.apartmani = response.data;
                     this.filtriraniApartmani = response.data;
-                    this.brojRedova = Math.ceil(this.apartmani.length/5);
+                    this.brojRedova = Math.ceil(this.apartmani.length/this.brojKolona);
                 })
             }
             else
@@ -263,12 +268,31 @@ Vue.component('pregled-apartmana',{
                 .then(response => {
                     this.apartmani = response.data;
                     this.filtriraniApartmani = response.data;
-                    this.brojRedova = Math.ceil(this.apartmani.length/5);
+                    this.brojRedova = Math.ceil(this.apartmani.length/this.brojKolona);
                 })
             }
         },
+        getAdminApartmani: function(){
+            this.brojKolona = 3;
+            axios
+                .get("/admin/getAdminApartmani", this.config)
+                .then(response => {
+                    this.apartmani = response.data;
+                    this.filtriraniApartmani = response.data;
+                    this.brojRedova = Math.ceil(this.apartmani.length/this.brojKolona);
+                })
+            
+        },
         getDomacin: function(){
             if(this.domacin == true){
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+        getAdmin: function(){
+            if(this.admin == true){
                 return true;
             }
             else{
@@ -281,10 +305,14 @@ Vue.component('pregled-apartmana',{
         if(this.apartmani == null){
         console.log(this.$route.query);
         this.domacin = this.$attrs.domacin;
+        this.admin = this.$attrs.admin;
         if(typeof this.domacin == 'undefined'){
             this.domacin = false;
         }
-        if(this.domacin == false){
+        if(typeof this.admin == 'undefined'){
+            this.admin = false;
+        }
+        if(this.domacin == false && this.admin == false){
             header = "Bearer ";
             this.config = {
                 headers: {'Authorization': header},
@@ -297,7 +325,12 @@ Vue.component('pregled-apartmana',{
             this.config = {
                 headers: {'Authorization': header},
             }
-            this.getDomacinApartmani();
+            if(this.domacin == true){ 
+                this.getDomacinApartmani();
+            }
+            else if(this.admin == true){
+                this.getAdminApartmani();
+            }
         }
         }
         axios

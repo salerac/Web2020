@@ -7,6 +7,7 @@ Vue.component('pregled-rezervacija', {
             alert: false,
             apartmanId: null,
             domacin: false,
+            search: null,
         }
     },
     template:/*html*/`
@@ -23,6 +24,10 @@ Vue.component('pregled-rezervacija', {
                     <div class="col">
                         <h3 class="mt-3"><b>Rezervacije za selektovan apartman</b></h3>
                     </div>
+                </div>
+                <div class="row"  v-if="domacin">
+                    <h5 class="mt-3"><b>Pretraga</b></h5>
+                    <input class="login-input border" placeholder="Korisnicko ime" style="width:200px" v-model="search" v-on:input="trazi()">
                 </div>
                 <div class="row" v-for="red in brojRedova" :key="red">
                     <div class="col">
@@ -46,6 +51,18 @@ Vue.component('pregled-rezervacija', {
     </div>
     `,
     methods: {
+        trazi: function(){
+            if(this.search == ""){
+                this.$root.$emit("izmena");
+            }
+            user = JSON.parse(localStorage.getItem('user'));
+            header = "Bearer " + user.jwt;
+            axios 
+                .post("/domacin/pretragaRezervacija",{apartman: this.apartmanId, user: this.search}, {headers: {'Authorization': header}})
+                .then(response => {
+                    this.rezervacije = response.data;
+                })
+        },
         getIndex: function(i, red){
             index = this.rezervacije[red*4 - i];
             return index;

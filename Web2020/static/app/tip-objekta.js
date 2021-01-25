@@ -39,7 +39,6 @@ Vue.component('tip-objekta', {
             this.$refs[1].className = this.rowClass;
             this.$refs[target].className = "row height-row border mt-3 highlighted-input";
             this.selectedElement = target;
-            this.$root.$emit('validiraj', true);
         }
     },
     mounted: function(){

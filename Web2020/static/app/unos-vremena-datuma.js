@@ -10,6 +10,7 @@ Vue.component('unos-vremena-datuma', {
             periodi: [],
             brojPerioda: 0,
             brojRedova: 0,
+            active: false
         }
     },
     template: /*html*/`
@@ -106,11 +107,8 @@ Vue.component('unos-vremena-datuma', {
             index = red*2-i;
             pocetniDatum = new Date(this.periodi[index].slice(0, 10));
             krajnjiDatum = new Date(this.periodi[index].slice(13, 23));
-            console.log(pocetniDatum);
-            console.log(krajnjiDatum);
             for(pocetniDatum; pocetniDatum <= krajnjiDatum; pocetniDatum.setDate(pocetniDatum.getDate() + 1)){ 
                 i1 = this.datumi.map(Number).indexOf(+pocetniDatum);;
-                console.log(i1);
                 this.datumi.splice(i1, 1);
             }
             this.periodi.splice(index,1);
@@ -176,7 +174,20 @@ Vue.component('unos-vremena-datuma', {
     },
     mounted: function(){
         this.$root.$on('submitPodatke',() => {
+            console.log("saljem vreme datum")
+            if(this.active == true){
+                console.log("saljem vreme datum prosao")
             this.$root.$emit('submitVremeDatum', this.vremePrijave, this.vremeOdjave, this.datumi);
+            }
         })
+        
+    },
+    activated: function(){
+        console.log("aktiviran")
+        this.active = true;
+    },
+    deactivated: function(){
+        console.log("deaktiviran")
+        this.active = false;
     }
 })

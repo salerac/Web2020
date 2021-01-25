@@ -23,7 +23,7 @@ Vue.component("login-page", {
     template:/*html*/ `
     <div class="limiter">
         <div class="form-group container-login" >
-            <div class="wrap-login border shadow">
+            <div class="wrap-login border shadow mb-5">
                 <span class="login-span pb-5">Logovanje korisnika</span>
                 <input v-on:input="isUsernameEmpty" v-model="user.username" v-bind:class="usernameClass" placeholder="Korisničko ime">
                 <span v-if="usernameEmpty" class="error-message">Niste uneli korisničko ime.</span>
@@ -50,9 +50,12 @@ Vue.component("login-page", {
             axios
                 .post('/login', {"username": ''+this.user.username, "lozinka": ''+this.user.lozinka})
                 .then(response => {
+                    console.log(this.$route.params.putanja)
                     this.error = null;
+                    if(localStorage.getItem('user') == null){ 
                     window.localStorage.setItem('user', JSON.stringify(response.data));
-                    this.$router.go(-1);
+                    }
+                    this.$router.push({name: this.$route.params.putanja});
                     //this.$router.push({path: this.$route.query.putanja});
                     //console.log(this.$route.query.putanja);
                     //this.$root.$emit("login");

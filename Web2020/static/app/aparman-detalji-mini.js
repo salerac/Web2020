@@ -5,6 +5,7 @@ Vue.component('apartman-detalji-mini', {
                 apartman: Object
             },
             domacin: false,
+            admin: false,
         }
     },
     template: /*html*/`
@@ -47,15 +48,24 @@ Vue.component('apartman-detalji-mini', {
         </div>
         <div class="row" v-if="domacin && !$attrs.neaktivni">
             <div class="col p-0">
-            <button class="btn border btn-light" v-on:click="rezervacije()">Rezervacije</button>
+                <button class="btn border btn-light" v-on:click="rezervacije()">Rezervacije</button>
             </div>
-            <div class="col"></div>
+            <div class="col">
+                <button class="btn border btn-danger" v-on:click="obrisi()">Obriši</button>
+            </div>
         </div>
         <div class="row" v-if="$attrs.neaktivni">
             <div class="col p-0">
             <button class="btn border btn-light" v-on:click="aktiviraj()">Aktiviraj</button>
             </div>
             <div class="col"></div>
+        </div>
+        <div class="row" v-if="admin">
+            <div class="col p-0">
+                <button class="btn border btn-danger" v-on:click="obrisi()">Obriši</button>
+            </div>
+            <div class="col">
+            </div>
         </div>
     </div>
     `,
@@ -78,11 +88,34 @@ Vue.component('apartman-detalji-mini', {
                 .then(() => {
                     this.$root.$emit("izmena");
                 }) 
+        },
+        obrisi: function(){
+            user = JSON.parse(localStorage.getItem('user'));  
+            userId = user.id;
+            header = "Bearer " + user.jwt;
+            path = "";
+            if(this.domacin == true){
+                path = "/domacin/obrisiApartman";
             }
+            else path = "/admin/obrisiApartmanAdmin"
+            axios
+                .delete(path, {
+                    headers: {
+                    Authorization: "Authorization " + header,
+                    },
+                    data: this.$attrs.apartman
+                    })
+                .then(() => {
+                    this.$root.$emit("izmena");
+                }) 
+        }
     },
     mounted: function(){
         if(this.$attrs.domacin == true){
             this.domacin = true;
+        }
+        if(this.$attrs.admin == true){
+            this.admin = true;
         }
     }
 })

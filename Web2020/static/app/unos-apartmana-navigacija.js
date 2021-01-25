@@ -5,7 +5,6 @@ Vue.component('unos-apartmana-navigacija',{
             stilNazad: 'height:50px;width:50px;opacity:0.3;',
             tekstDugmeta: 'Nastavi',
             klasa: "col p-0 border d-flex align-items-center justify-content-center bg-primary pointer-cursor",
-            //disabled: "opacity:0.3;pointer-events: none",
         }
     },
     template: /*html*/`
@@ -13,14 +12,15 @@ Vue.component('unos-apartmana-navigacija',{
         <div class="col-2 p-0 mr-1 border border-solid pointer-cursor" :style="stilNazad">
             <img src="/icons/back.png" class="border p-1" style="height:100%;width:100%;" v-on:click="vrati(); proveriPoziciju();">
         </div>
-        <div :class="klasa" v-on:click="nastavi($event); proveriPoziciju();" :style="disabled">
+        <div :class="klasa" v-on:click="nastavi($event); proveriPoziciju();">
             <b>{{tekstDugmeta}}</b>
         </div>
     </div>
     `,
     mounted: function(){
-        this.traziLokaciju();
-        this.proveriPoziciju();
+        console.log(this)
+        //this.traziLokaciju();
+        //this.proveriPoziciju();
     
     },
     created: function(){
@@ -35,10 +35,25 @@ Vue.component('unos-apartmana-navigacija',{
             else this.disabled = "opacity:0.3;pointer-events: none";
         })*/
     },
+    activated: function(){
+        console.log("AKTIVIRAN NAV")
+    },
     methods: {
         nastavi: function(e){
             if(this.lokacija == 4){
                 this.$root.$emit("submitPodatke");
+                user = JSON.parse(localStorage.getItem('user'));  
+                userId = user.id;
+                header = "Bearer " + user.jwt;
+                console.log("submitujem");
+                axios
+                    .post('/domacin/addApartman', this.$attrs.apartman, {headers: {'Authorization': header}})
+                    .then((response) => {
+                        this.$router.push({name: "dashboard"});
+                    })
+                    .catch((error) => {
+
+                    })
             }
             else { 
             if(this.lokacija == 3){

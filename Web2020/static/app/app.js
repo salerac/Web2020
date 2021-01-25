@@ -6,6 +6,7 @@ const ApartmanPrikaz = { template: '<apartman-prikaz></apartman-prikaz>' }
 const Rezervacija = { template: '<rezervacija></rezervacija>' }
 const Registracija = { template: '<registracija></registracija>' }
 const Dashboard = { template: '<dashboard></dashboard>' }
+const pregledKorisnika = { template: '<pregled-korisnika></pregled-korisnika>' }
 
 const router = new VueRouter({
 	mode: 'hash',
@@ -18,7 +19,8 @@ const router = new VueRouter({
 		{
 			path: "/login",
 			name: "login",
-			component: Login
+			component: Login,
+			props: true
 		},
 		{
 			path: "/pregled",
@@ -50,6 +52,12 @@ const router = new VueRouter({
 			name: "dashboard",
 			component: Dashboard,
 			props: true
+		},
+		{
+			path: "/pregledKorisnika",
+			name: "pregledKorisnika",
+			component: pregledKorisnika,
+			props: true,
 		}
 	]
 });

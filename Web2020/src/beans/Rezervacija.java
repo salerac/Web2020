@@ -13,6 +13,11 @@ public class Rezervacija {
 	private int gostId;
 	private Status status;
 	private String slika;
+	private boolean obrisan;
+	
+	public Rezervacija() {
+		obrisan = false;
+	}
 	public int getApartmanId() {
 		return apartmanId;
 	}
@@ -23,6 +28,14 @@ public class Rezervacija {
 
 	public void setSlika(String slika) {
 		this.slika = slika;
+	}
+
+	public boolean isObrisan() {
+		return obrisan;
+	}
+
+	public void setObrisan(boolean obrisan) {
+		this.obrisan = obrisan;
 	}
 
 	public int getId() {

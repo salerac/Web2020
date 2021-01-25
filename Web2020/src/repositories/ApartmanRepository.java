@@ -25,6 +25,7 @@ import beans.User;
 public class ApartmanRepository {
 	
 	private static ArrayList<Apartman> apartmani;
+	private static ArrayList<Apartman> obrisani;
 	private final static String PATH = "database/apartmani.json";
 	private static Gson gson = new Gson();
 	private static int globalId = 0;
@@ -41,6 +42,15 @@ public class ApartmanRepository {
 		else {
 		globalId = apartmani.get(apartmani.size() - 1).getId() + 1;
 		}
+		obrisani = new ArrayList<Apartman>();
+		ArrayList<Apartman> toRemove = new ArrayList<Apartman>();
+		for(Apartman a : apartmani) {
+			if(a.isObrisan()) {
+				obrisani.add(a);
+				toRemove.add(a);
+			}
+		}
+		apartmani.removeAll(toRemove);
 		//}
 		reader.close();
 	}
@@ -90,9 +100,11 @@ public class ApartmanRepository {
 
 	public static void saveApartmani() throws IOException {
 		Writer writer = Files.newBufferedWriter(Paths.get(PATH));
+		apartmani.addAll(obrisani);
 		String s = gson.toJson(apartmani);
 		writer.write(s);
 		writer.close();
+		loadApartmani();
 	}
 	public static void addApartman(Apartman a) throws IOException {
 		a.setId(globalId);
@@ -124,7 +136,6 @@ public class ApartmanRepository {
 			}
 		}
 		if(brojac == brojNocenja) {
-			rezervacije.add(rez.getId());
 			saveApartmani();
 		}
 		else {

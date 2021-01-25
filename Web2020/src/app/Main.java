@@ -62,15 +62,25 @@ public class Main {
 		});
 		path("/domacin", () -> {
 			before("/*", LoginService.authenticateDomacin);
-			post("/editGost", LoginService.editUser);
 			post("/odbijRezervaciju", RezervacijaService.odbijRezervaciju);
 			post("/prihvatiRezervaciju", RezervacijaService.prihvatiRezervaciju);
 			post("/aktivirajApartman", ApartmanService.aktivirajApartman);
+			post("/editDomacin", LoginService.editDomacin);
+			post("/pretragaRezervacija", RezervacijaService.pretraziPoKorisniku);
+			post("/pretraziDomacinKorisnike", LoginService.pretraziDomacinKorisnike);
+			get("/getDomacinKorisnici", RezervacijaService.getDomacinKorisnici);
 			get("/getDomacinApartmani", ApartmanService.getDomacinApartmani);
 			get("/getDomacinNeaktivni", ApartmanService.getDomacinNeaktivni);
 			post("/addApartman", ApartmanService.addApartman);
 			get("/filtrirajDomacinApartmane", ApartmanService.filtrirajDomacinApartmane);
 			get("/getApartmanRezervacije", ApartmanService.getApartmanRezervacije);
+			delete("/obrisiApartman", ApartmanService.obrisiApartman);
+		});
+		path("/admin", () -> {
+			before("/*", LoginService.authenticateAdmin);
+			post("/editAdmin", LoginService.editAdmin);
+			get("/getAdminApartmani", ApartmanService.getAdminApartmani);
+			delete("/obrisiApartmanAdmin", ApartmanService.obrisiApartmanAdmin);
 		});
 	}
 

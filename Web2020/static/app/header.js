@@ -88,7 +88,8 @@ Vue.component('my-header', {
         },
         login: function(){
             this.toggleDrop();
-            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}})
+            console.log(this.$route.name)
+            this.$router.push({name: "login", params: {putanja :this.$route.name}})
         },
         logout: function(){
             this.toggleDrop();

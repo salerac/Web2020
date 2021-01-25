@@ -1,11 +1,17 @@
 package services;
 
+import java.util.ArrayList;
+
 import com.google.gson.Gson;
 
 import beans.Rezervacija;
 import beans.Status;
+import beans.User;
+import dto.RezervacijaSearchDTO;
+import dto.UserDTO;
 import repositories.ApartmanRepository;
 import repositories.RezervacijaRepository;
+import repositories.UserRepository;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -18,6 +24,9 @@ public class RezervacijaService {
 		String payload = request.body();
 		Rezervacija rez = g.fromJson(payload, Rezervacija.class);
 		Rezervacija r = RezervacijaRepository.getRezervacijaById(rez.getId());
+		if(r.getStatus().equals(Status.PRIHVACENA)) {
+			ApartmanRepository.otkaziRezervaciju(ApartmanRepository.getApartmanById(r.getApartmanId()), r);
+		}
 		r.setStatus(Status.ODBIJENA);
 		RezervacijaRepository.saveRezervacije();
 		return g.toJson(r);
@@ -32,5 +41,39 @@ public class RezervacijaService {
 		ApartmanRepository.addRezervacijaToApartman(r.getApartmanId(), r);
 		RezervacijaRepository.saveRezervacije();
 		return g.toJson(r);
+	};
+	public static Route getDomacinKorisnici = (Request request, Response response) -> {
+		response.type("application/json");
+		User u = UserRepository.getTrenutniUser();
+		ArrayList<Rezervacija> rez = RezervacijaRepository.getRezervacijeByDomacinId(u.getId());
+		ArrayList<User> unique = new ArrayList<User>();
+		ArrayList<UserDTO> ret = new ArrayList<UserDTO>();
+		for(Rezervacija r : rez) {
+			User user = UserRepository.getUserById(r.getGostId());
+			if(!unique.contains(user)) {
+			unique.add(user);
+			ret.add(new UserDTO(UserRepository.getUserById(r.getGostId()),null));
+			}
+		}
+		return g.toJson(ret);
+	};
+	public static Route pretraziPoKorisniku = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		RezervacijaSearchDTO dto = g.fromJson(payload, RezervacijaSearchDTO.class);
+		User u = new User();
+		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
+		try {
+		u = UserRepository.findOne(dto.getUser());
+		ArrayList<Rezervacija> rezUser = RezervacijaRepository.getRezervacijeByUserId(u.getId());
+		for(Rezervacija r : rezUser) {
+			if(r.getApartmanId() == dto.getApartman())
+				ret.add(r);
+		}
+		}
+		catch(Exception e) {
+			return null;
+		}
+		return g.toJson(ret);
 	};
 }

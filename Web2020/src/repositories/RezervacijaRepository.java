@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import beans.Apartman;
 import beans.Rezervacija;
 import beans.Status;
 
@@ -59,5 +61,24 @@ public class RezervacijaRepository {
 		}
 		return null;
 	}
-
+	public static ArrayList<Rezervacija> getRezervacijeByUserId(int id){
+		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
+		for(Rezervacija r : rezervacije) {
+			if(r.getGostId() == id) {
+				ret.add(r);
+			}
+		}
+		return ret;
+	}
+	public static ArrayList<Rezervacija> getRezervacijeByDomacinId(int id){
+		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
+		for(Rezervacija r : rezervacije) {
+			Apartman a = ApartmanRepository.getApartmanById(r.getApartmanId());
+			int domacinId = UserRepository.findOne(a.getDomacinUsername()).getId();
+			if(domacinId == id) {
+				ret.add(r);
+			}
+		}
+		return ret;
+	}
 }

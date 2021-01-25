@@ -175,14 +175,26 @@ Vue.component('licni-podaci', {
                 this.showPoljaError = true;
                 return;
             }
+            path = "";
+            if(this.user.uloga == "GOST"){
+                path = "/gost/editGost";
+            }
+            else if(this.user.uloga == "DOMACIN"){ 
+                path = "/domacin/editDomacin"
+            }
+            else if(this.user.uloga == "ADMINISTRATOR"){
+                path = "/admin/editAdmin"
+            }
             header = "Bearer " + this.user.jwt;
             axios
-                .post("/gost/editGost", this.izmenjenUser, {headers: {'Authorization': header}})
+                .post(path, this.izmenjenUser, {headers: {'Authorization': header}})
                 .then(response => {
+                    user = JSON.stringify(response.data);
+                    localStorage.removeItem("user");
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                     this.lozinkaUneta = false;
                     this.izmena = false;
-                    this.$router.push({name: "landingPage"});
+                    this.$root.$emit("izmena");
                 })
                 .catch(error => {
                     this.alertError = true;

@@ -14,6 +14,7 @@ import beans.Rezervacija;
 import beans.Status;
 import dto.EditUserDTO;
 import dto.OdustanakDTO;
+import dto.RezervacijaSearchDTO;
 import dto.UserDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -101,7 +102,79 @@ public class LoginService {
 			novi.setPol(u.isPol());
 			novi.setUloga(u.getUloga());
 			User ret = UserRepository.editUser(novi);
-			return g.toJson(ret);
+			return g.toJson(new UserDTO(ret, u.getJwt()));
+		}
+		
+	};
+	public static Route editDomacin = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		EditUserDTO u = g.fromJson(payload, EditUserDTO.class);
+		//User user = UserRepository.findOne(u.getUsername());
+		User user = UserRepository.getTrenutniUser();
+		if(!user.getUloga().equals(Uloga.DOMACIN)) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Korisnik nije domacin.");	
+			return message;
+		}
+		if(!user.getLozinka().equals(u.getStaraLozinka())) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Niste uneli dobru lozinku.");	
+			return message;
+		}
+		else {
+			User novi = new User();
+			novi.setUsername(u.getUsername());
+			novi.setIme(u.getIme());
+			novi.setPrezime(u.getPrezime());
+			if(u.getLozinka() != null && !u.getLozinka().equals("")) {
+			novi.setLozinka(u.getLozinka());
+			}
+			else {
+				novi.setLozinka(user.getLozinka());
+			}
+			novi.setPol(u.isPol());
+			novi.setUloga(u.getUloga());
+			User ret = UserRepository.editUser(novi);
+			return g.toJson(new UserDTO(ret, u.getJwt()));
+		}
+		
+	};
+	public static Route editAdmin = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		EditUserDTO u = g.fromJson(payload, EditUserDTO.class);
+		//User user = UserRepository.findOne(u.getUsername());
+		User user = UserRepository.getTrenutniUser();
+		if(!user.getUloga().equals(Uloga.ADMINISTRATOR)) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Korisnik nije administrator.");	
+			return message;
+		}
+		if(!user.getLozinka().equals(u.getStaraLozinka())) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Niste uneli dobru lozinku.");	
+			return message;
+		}
+		else {
+			User novi = new User();
+			novi.setUsername(u.getUsername());
+			novi.setIme(u.getIme());
+			novi.setPrezime(u.getPrezime());
+			if(u.getLozinka() != null && !u.getLozinka().equals("")) {
+			novi.setLozinka(u.getLozinka());
+			}
+			else {
+				novi.setLozinka(user.getLozinka());
+			}
+			novi.setPol(u.isPol());
+			novi.setUloga(u.getUloga());
+			User ret = UserRepository.editUser(novi);
+			return g.toJson(new UserDTO(ret, u.getJwt()));
 		}
 		
 	};
@@ -113,6 +186,36 @@ public class LoginService {
 		for(int i : rezId) {
 			Rezervacija r = RezervacijaRepository.getRezervacijaById(i);
 			ret.add(r);
+		}
+		return g.toJson(ret);
+	};
+	public static Route pretraziDomacinKorisnike = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		RezervacijaSearchDTO dto = g.fromJson(payload, RezervacijaSearchDTO.class);
+		ArrayList<User> ret = new ArrayList<User>();
+		try {
+		ArrayList<Rezervacija> rezDomacin = RezervacijaRepository.getRezervacijeByDomacinId(UserRepository.getTrenutniUser().getId());
+		ArrayList<User> svi = new ArrayList<User>();
+		for(Rezervacija r : rezDomacin) {
+			svi.add(UserRepository.getUserById(r.getGostId()));
+		}
+		for(User u : svi) {
+			System.out.println(dto.getUser());
+			System.out.println(u.getUsername());
+			if(u.getUsername().equals(dto.getUser()) && !ret.contains(u)) {
+				ret.add(u);
+			}
+			else if(dto.getUser().equalsIgnoreCase("zensk") && u.isPol() == true && !ret.contains(u)) {
+				ret.add(u);
+			}
+			else if(dto.getUser().equalsIgnoreCase("musk") && u.isPol() == false && !ret.contains(u)) {
+				ret.add(u);
+			}
+		}
+		}
+		catch(Exception e) {
+			return null;
 		}
 		return g.toJson(ret);
 	};
@@ -138,7 +241,8 @@ public class LoginService {
 			return message;
 		}
 		Apartman ap = ApartmanRepository.getApartmanById(rez.getApartmanId());
-		ApartmanRepository.otkaziRezervaciju(ap, rez);
+		if(rez.getStatus() == Status.PRIHVACENA)
+			ApartmanRepository.otkaziRezervaciju(ap, rez);
 		rez.setStatus(Status.ODUSTANAK);
 		RezervacijaRepository.saveRezervacije();
 		JsonObject message = new JsonObject();
@@ -196,6 +300,40 @@ public class LoginService {
 			    else if(!UserRepository.findOne(username).getUloga().equals(Uloga.DOMACIN)) {
 			    	JsonObject message = new JsonObject();
 					message.addProperty("message", "Korisnik nije domaćin.");
+					halt(401, message.toString());
+			    }
+			    else {
+			    UserRepository.setTrenutniUser(UserRepository.findOne(username));
+				System.out.println(claims.getBody().getSubject() + " logged in.");
+			    }
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				JsonObject message = new JsonObject();
+				message.addProperty("message", "Token nije validan.");
+				halt(401, message.toString());
+			}
+		}else {
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Token nije poslat.");
+			halt(401, message.toString());
+		};
+	};
+	public static Filter authenticateAdmin = (Request request, Response response) -> {
+		String auth = request.headers("Authorization");
+		System.out.println("Authorization: " + auth);
+		if ((auth != null) && (auth.contains("Bearer "))) {
+			String jwt = auth.substring(auth.indexOf("Bearer ") + 7);
+			try {
+			    Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt);
+			    String username = claims.getBody().getSubject();
+			    if(UserRepository.findOne(username) == null) {
+			    	JsonObject message = new JsonObject();
+					message.addProperty("message", "Administrator sa datim korisničkim imenom ne postoji.");
+					halt(401, message.toString());
+			    }
+			    else if(!UserRepository.findOne(username).getUloga().equals(Uloga.ADMINISTRATOR)) {
+			    	JsonObject message = new JsonObject();
+					message.addProperty("message", "Korisnik nije administrator.");
 					halt(401, message.toString());
 			    }
 			    else {

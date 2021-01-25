@@ -15,32 +15,35 @@ Vue.component('unos-apartmana', {
                 lokacija: null,
                 vremePrijave: 14,
                 vremeOdjave: 10,
-                datumi: []
+                datumi: [],
             },
             komponente: ['tip-objekta','detalji-apartmana','sadrzaj','unos-lokacije','unos-vremena-datuma'],
-            trenutnaKomponenta: 0
+            trenutnaKomponenta: 0,
+            poslao: false,
+            globalKey: 0,
         }
     },
     template:/*html*/ `
         <div>
             <div class="container-fluid">
                 <div class="row mt-4">
-                    <div class="col" v-bind:key="1"></div>
+                    <div class="col"></div>
                     <div class="col-md-3 p-0">
-                            <transition @before-leave="beforeLeave" name="fade" mode="out-in">
-                                <keep-alive>
-                                    <component :is="komponente[trenutnaKomponenta]"></component>
-                                </keep-alive>
-                            </transition>
-                        <unos-apartmana-navigacija :key="2"></unos-apartmana-navigacija>
+                        <transition @before-leave="beforeLeave" name="fade" mode="out-in">
+                            <keep-alive>
+                                <component :is="komponente[trenutnaKomponenta]"></component>
+                            </keep-alive>
+                        </transition>
+                        <unos-apartmana-navigacija :apartman="apartman"></unos-apartmana-navigacija>
                     </div>
-                    <div class="col" v-bind:key="3"></div>
+                    <div class="col"></div>
                 </div>
             </div>
         </div> 
     `
     ,
     mounted: function(){
+        //this.globalKey++;
         this.$root.$on('nastavi',() => {
             this.trenutnaKomponenta++;
         }),
@@ -52,6 +55,11 @@ Vue.component('unos-apartmana', {
             .then(response => this.sadrzaji = response.data)
     },
     created: function(){
+        this.$root.$on('logout',() => {
+            if(!this._inactive){    
+                this.$router.push({name: "login", params: {putanja: this.$route.name}});
+            }
+        });
         this.$root.$on('traziLokaciju',() => {
             this.dajLokaciju();
         })
@@ -78,17 +86,19 @@ Vue.component('unos-apartmana', {
             this.apartman.vremePrijave = vremePrijave;
             this.apartman.vremeOdjave = vremeOdjave;
             this.apartman.datumi = datumi;
-            user = JSON.parse(localStorage.getItem('user'));  
+            /*user = JSON.parse(localStorage.getItem('user'));  
             userId = user.id;
             header = "Bearer " + user.jwt;
-            axios
-                .post('/domacin/addApartman', this.apartman, {headers: {'Authorization': header}})
-                .then(response => {
-                    alert("dodao");
-                })
-                .catch(error => {
-                    this.error = error.response.data['message'];
-                })
+                this.poslao = true;
+                console.log("submitujem")
+                axios
+                    .post('/domacin/addApartman', this.apartman, {headers: {'Authorization': header}})
+                    .then(response => {
+                        //this.$router.push({name: "dashboard"});
+                    })
+                    .catch(error => {
+                        this.error = error.response.data['message'];
+                    })*/
         })
     },
     methods: {

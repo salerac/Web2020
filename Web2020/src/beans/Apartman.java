@@ -24,7 +24,7 @@ public class Apartman {
 	private boolean status;
 	private ArrayList<Integer> sadrzajiId;
 	private ArrayList<Integer> rezervacijeId;
-	
+	private boolean obrisan;
 	
 	public Apartman(boolean tip, int brojSoba, int brojGostiju, int lokacijaId, ArrayList<Long> datumi,
 			ArrayList<String> slike, double cenaPoNoci, int vremePrijave, int vremeOdjave, 
@@ -43,7 +43,8 @@ public class Apartman {
 	}
 
 	public Apartman() {
-
+		rezervacijeId = new ArrayList<Integer>();
+		obrisan = false;
 	}
 	
 	public int getId() {
@@ -52,6 +53,14 @@ public class Apartman {
 	public void setId(int id) {
 		this.id = id;
 	}
+	public boolean isObrisan() {
+		return obrisan;
+	}
+
+	public void setObrisan(boolean obrisan) {
+		this.obrisan = obrisan;
+	}
+
 	public boolean isTip() {
 		return tip;
 	}

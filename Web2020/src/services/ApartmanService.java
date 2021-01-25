@@ -65,6 +65,13 @@ public class ApartmanService{
 		return g.toJson(ret);
 		
 	};
+	public static Route getAdminApartmani = (Request request, Response response) -> {
+		User u = UserRepository.getTrenutniUser();
+		ArrayList<Integer> apartmaniId = u.getApartmaniId();
+		ArrayList<Apartman> apartmani = ApartmanRepository.getApartmani();
+		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		return g.toJson(ret);
+	};
 	public static Route getApartmanRezervacije = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.queryParams("id");
@@ -81,6 +88,7 @@ public class ApartmanService{
 		for(int i : rezId) {
 			ret.add(RezervacijaRepository.getRezervacijaById(i));
 		}
+		System.out.println(ret);
 		return g.toJson(ret);
 	};
 	public static Route aktivirajApartman = (Request request, Response response) -> {
@@ -110,6 +118,7 @@ public class ApartmanService{
 				a.getDatumi(), slike, a.getCena(), a.getVremePrijave(), a.getVremeOdjave(), a.getSadrzaj());
 		apartman.setDomacinUsername(UserRepository.getTrenutniUser().getUsername());
 		apartman.setStatus(true);
+		apartman.setRezervacijeId(new ArrayList<Integer>());
 		ApartmanRepository.addApartman(apartman);
 		UserRepository.getTrenutniUser().getApartmaniId().add(apartman.getId());
 		UserRepository.saveUsers();
@@ -117,7 +126,56 @@ public class ApartmanService{
 		return request;
 		
 	};
-	
+	public static Route obrisiApartman = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		Apartman a = g.fromJson(payload, Apartman.class);
+		Apartman apartman = ApartmanRepository.getApartmanById(a.getId());
+		User domacin = UserRepository.getTrenutniUser();
+		domacin.getApartmaniId().remove(Integer.valueOf(apartman.getId()));
+		apartman.setObrisan(true);
+		ArrayList<Integer> rezervacije = apartman.getRezervacijeId();
+		for(Integer i : rezervacije) {
+			System.out.println("stavljam " + i);
+			Rezervacija r = RezervacijaRepository.getRezervacijaById(i);
+			if(r.getStatus().equals(Status.KREIRANA) || r.getStatus().equals(Status.PRIHVACENA))
+			r.setStatus(Status.ODBIJENA);
+		};
+		UserRepository.saveUsers();
+		ApartmanRepository.saveApartmani();
+		RezervacijaRepository.saveRezervacije();
+		
+		response.status(200);
+		JsonObject message = new JsonObject();
+		message.addProperty("message", "Apartman obrisan.");
+		return message ;
+		
+	};
+	public static Route obrisiApartmanAdmin = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		Apartman a = g.fromJson(payload, Apartman.class);
+		Apartman apartman = ApartmanRepository.getApartmanById(a.getId());
+		User domacin = UserRepository.findOne(apartman.getDomacinUsername());
+		domacin.getApartmaniId().remove(Integer.valueOf(apartman.getId()));
+		apartman.setObrisan(true);
+		ArrayList<Integer> rezervacije = apartman.getRezervacijeId();
+		for(Integer i : rezervacije) {
+			System.out.println("stavljam " + i);
+			Rezervacija r = RezervacijaRepository.getRezervacijaById(i);
+			if(r.getStatus().equals(Status.KREIRANA) || r.getStatus().equals(Status.PRIHVACENA))
+			r.setStatus(Status.ODBIJENA);
+		};
+		UserRepository.saveUsers();
+		ApartmanRepository.saveApartmani();
+		RezervacijaRepository.saveRezervacije();
+		
+		response.status(200);
+		JsonObject message = new JsonObject();
+		message.addProperty("message", "Apartman obrisan.");
+		return message ;
+		
+	};
 	public static Route searchApartman = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.body();

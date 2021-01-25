@@ -1,11 +1,13 @@
 Vue.component('dashboard', {
     data: function(){
         return{
+            user: null,
             komponente: [],
             trenutnaKomponenta: 0,
             props: ["tab"],
             gost: false,
             domacin: false,
+            admin: false,
             apartmanId: null,
             globalKey: 0,
             promenio: false,
@@ -29,7 +31,7 @@ Vue.component('dashboard', {
                                 <img class="my-auto text-center" src="icons/calendar.png" style="width:30px; height:30px;">
                             </div>
                         </div>
-                        <div class="row pointer-cursor" v-if="domacin"  :ref="getRef(1)" v-on:click="selektujTab($event,1,getRef(1))">
+                        <div class="row pointer-cursor" v-if="domacin || admin"  :ref="getRef(1)" v-on:click="selektujTab($event,1,getRef(1))">
                             <div class="col p-3 d-flex align-items-center justify-content-center">
                                 <img class="my-auto text-center" src="icons/home.png" style="width:30px; height:30px;">
                             </div>
@@ -39,11 +41,16 @@ Vue.component('dashboard', {
                                 <img class="my-auto text-center" src="icons/closed.png" style="width:30px; height:30px;">
                             </div>
                         </div>
+                        <div class="row pointer-cursor" v-if="domacin"  :ref="getRef(4)" v-on:click="selektujTab($event,4,getRef(4))">
+                            <div class="col p-3 d-flex align-items-center justify-content-center">
+                                <img class="my-auto text-center" src="icons/customer.png" style="width:30px; height:30px;">
+                            </div>
+                        </div>
                     </div>
                     <div class="col">
                         <transition name="fade" mode="out-in">
                             
-                                <component :is="komponente[trenutnaKomponenta]" :key="globalKey" :domacin="true" :apartmanId="apartmanId" :neaktivni="getNeaktivni()"></component>
+                                <component :is="komponente[trenutnaKomponenta]" :key="globalKey" :domacin="isDomacin()" :admin="isAdmin()" :apartmanId="apartmanId" :neaktivni="getNeaktivni()"></component>
 
                         </transition>
                     </div>
@@ -77,14 +84,25 @@ Vue.component('dashboard', {
                 return true;
             }
             else return false;
+        },
+        isDomacin: function(){
+            if(this.user.uloga == "DOMACIN"){
+                return true;
+            }
+            else return false;
+        },
+        isAdmin: function(){
+            if(this.user.uloga == "ADMINISTRATOR"){
+                return true;
+            }
+            else return false;
         }
     },
     created: function(){
         this.$root.$on('logout',() => {
-            if(!this._inactive){ 
-                console.log(this.$route.fullPath + " putanja")    
+            if(!this._inactive){    
                 //this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
-                this.$router.push({name: "login"});
+                this.$router.push({name: "login", params: {putanja: this.$route.name}});
             }
         });
         this.$root.$on("rezervacije", (id) => {
@@ -110,14 +128,18 @@ Vue.component('dashboard', {
         })
     },
     mounted: function(){
-        user = JSON.parse(localStorage.getItem('user'));
-        if(user.uloga == "GOST"){
+        this.user = JSON.parse(localStorage.getItem('user'));
+        if(this.user.uloga == "GOST"){
             this.gost = true
             this.komponente = ["licni-podaci", "pregled-rezervacija"];
         }
-        else if(user.uloga == "DOMACIN"){
+        else if(this.user.uloga == "DOMACIN"){
             this.domacin = true;
-            this.komponente = ["licni-podaci", "pregled-apartmana", "pregled-rezervacija", "pregled-apartmana-neaktivni"]
+            this.komponente = ["licni-podaci", "pregled-apartmana", "pregled-rezervacija", "pregled-apartmana-neaktivni", "pregled-korisnika"]
+        }
+        else if(this.user.uloga == "ADMINISTRATOR"){
+            this.admin = true;
+            this.komponente = ["licni-podaci", "pregled-apartmana"]
         }
     },
     updated: function(){
