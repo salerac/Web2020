@@ -4,6 +4,8 @@ Vue.component('pregled-korisnika', {
             korisnici: null,
             config: null,
             search: null,
+            domacin: false,
+            admin: false,
         }
     },
     template:/*html*/`
@@ -11,7 +13,8 @@ Vue.component('pregled-korisnika', {
         <div class="row">
             <div class="col ml-3">
                 <div class="row">
-                    <h3 class="pl-0"><b>Vaše mušterije</b></h3>
+                    <h3 class="pl-0" v-if="domacin"><b>Vaše mušterije</b></h3>
+                    <h3 class="pl-0" v-else><b>Korisnici u sistemu</b></h3>
                 </div>
                 <div class="row">
                     <hr class="mt-1 ml-0"/>
@@ -53,25 +56,20 @@ Vue.component('pregled-korisnika', {
     </div>
     `,
     mounted: function(){
-        user = JSON.parse(localStorage.getItem('user'));
-        header = "Bearer " + user.jwt;
-        this.config = {
-            headers: {'Authorization': header},
-        }
-        axios
-            .get("/domacin/getDomacinKorisnici", this.config)
-            .then(response => {
-                this.korisnici = response.data;
-            })
+       this.load();
 
     },
     methods: {
         trazi: function(){
             if(this.search == ""){
-                this.$root.$emit("izmena");
+                this.load();
             }
+            if(this.domacin == true){
+                path = "/domacin/pretraziDomacinKorisnike";
+            }
+            else path = "/admin/pretraziKorisnike"
             axios 
-                .post("/domacin/pretraziDomacinKorisnike",{apartman: null, user: this.search}, this.config)
+                .post(path,{apartman: null, user: this.search}, this.config)
                 .then(response => {
                     this.korisnici = response.data;
                 })
@@ -82,6 +80,26 @@ Vue.component('pregled-korisnika', {
                 return "Muški";
             }
             else return "Ženski";
+        },
+        load: function(){
+            user = JSON.parse(localStorage.getItem('user'));
+            header = "Bearer " + user.jwt;
+            this.config = {
+                headers: {'Authorization': header},
+            }
+            if(user.uloga == "DOMACIN"){
+                this.domacin = true;
+                path = "/domacin/getDomacinKorisnici";
+            }
+            else{
+                this.admin = true;
+                path = "/admin/getAdminKorisnici";
+            }
+            axios
+                .get(path, this.config)
+                .then(response => {
+                    this.korisnici = response.data;
+                })
         }
     }
 })

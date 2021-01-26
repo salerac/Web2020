@@ -15,7 +15,7 @@ public class ApartmanResponse {
 	private LokacijaResponse lokacija;
 	private ArrayList<Long> datumi = new ArrayList<Long>();
 	private String domacinUsername;
-	private ArrayList<String> komentariId;
+	private ArrayList<Integer> komentariId;
 	private ArrayList<String> slike;
 	private double cenaPoNoci;
 	private int vremePrijave;

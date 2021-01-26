@@ -40,8 +40,9 @@ public class ApartmanRepository {
 			globalId = 0;
 		}
 		else {
-		globalId = apartmani.get(apartmani.size() - 1).getId() + 1;
+		globalId = getId(apartmani) + 1;
 		}
+		System.out.println(globalId);
 		obrisani = new ArrayList<Apartman>();
 		ArrayList<Apartman> toRemove = new ArrayList<Apartman>();
 		for(Apartman a : apartmani) {
@@ -314,6 +315,15 @@ public class ApartmanRepository {
 		for(int i = 0; i < ulazni.size(); i++) {
 			if(ulazni.get(i).isTip() == tip) {
 				ret.add(ulazni.get(i));
+			}
+		}
+		return ret;
+	}
+	public static int getId(ArrayList<Apartman> apartmani) {
+		int ret = 0;
+		for(Apartman a: apartmani) {
+			if(a.getId() > ret) {
+				ret = a.getId();
 			}
 		}
 		return ret;

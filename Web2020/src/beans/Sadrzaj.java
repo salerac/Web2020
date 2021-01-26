@@ -4,6 +4,18 @@ public class Sadrzaj {
 	
 	private int id;
 	private String naziv;
+	private boolean obrisan;
+	
+	public Sadrzaj() {
+		obrisan = false;
+	}
+	public boolean isObrisan() {
+		return obrisan;
+	}
+	public void setObrisan(boolean obrisan) {
+		this.obrisan = obrisan;
+	}
+
 	public int getId() {
 		return id;
 	}

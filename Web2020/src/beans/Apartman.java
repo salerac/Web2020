@@ -16,7 +16,7 @@ public class Apartman {
 	private int lokacijaId;
 	private ArrayList<Long> datumi = new ArrayList<Long>();
 	private String domacinUsername;
-	private ArrayList<String> komentariId;
+	private ArrayList<Integer> komentariId;
 	private ArrayList<String> slike;
 	private double cenaPoNoci;
 	private int vremePrijave;
@@ -44,6 +44,7 @@ public class Apartman {
 
 	public Apartman() {
 		rezervacijeId = new ArrayList<Integer>();
+		komentariId = new ArrayList<Integer>();
 		obrisan = false;
 	}
 	
@@ -97,10 +98,10 @@ public class Apartman {
 	public void setDomacinUsername(String domacinUsername) {
 		this.domacinUsername = domacinUsername;
 	}
-	public ArrayList<String> getKomentariId() {
+	public ArrayList<Integer> getKomentariId() {
 		return komentariId;
 	}
-	public void setKomentariId(ArrayList<String> komentariId) {
+	public void setKomentariId(ArrayList<Integer> komentariId) {
 		this.komentariId = komentariId;
 	}
 	public ArrayList<String> getSlike() {

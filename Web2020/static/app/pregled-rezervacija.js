@@ -7,6 +7,7 @@ Vue.component('pregled-rezervacija', {
             alert: false,
             apartmanId: null,
             domacin: false,
+            admin: false,
             search: null,
         }
     },
@@ -14,8 +15,11 @@ Vue.component('pregled-rezervacija', {
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <div class="row"  v-if="!domacin">
+                <div class="row"  v-if="!domacin && !admin">
                     <h3 class="mt-3"><b>Vaše rezervacije</b></h3>
+                </div>
+                <div class="row"  v-if="admin">
+                    <h3 class="mt-3"><b>Rezervacije u sistemu</b></h3>
                 </div>
                 <div class="row"  v-if="domacin">
                     <div class="col-1">
@@ -25,22 +29,22 @@ Vue.component('pregled-rezervacija', {
                         <h3 class="mt-3"><b>Rezervacije za selektovan apartman</b></h3>
                     </div>
                 </div>
-                <div class="row"  v-if="domacin">
+                <div class="row"  v-if="domacin || admin">
                     <h5 class="mt-3"><b>Pretraga</b></h5>
-                    <input class="login-input border" placeholder="Korisnicko ime" style="width:200px" v-model="search" v-on:input="trazi()">
+                    <input id="search" class="login-input border ml-2" placeholder="Korisnicko ime" style="width:200px;background-color:white" v-model="search" v-on:input="trazi()">
                 </div>
                 <div class="row" v-for="red in brojRedova" :key="red">
                     <div class="col">
-                        <rezervacija-prikaz v-if="displayDiv(4, red)" :key="globalKey" :rezervacija="getIndex(4, red)" :domacin="domacin"></rezervacija-prikaz>
+                        <rezervacija-prikaz v-if="displayDiv(4, red)" :key="globalKey" :rezervacija="getIndex(4, red)" :domacin="domacin" :admin="admin"></rezervacija-prikaz>
                     </div>
                     <div class="col">
-                        <rezervacija-prikaz v-if="displayDiv(3, red)" :key="globalKey" :rezervacija="getIndex(3, red)" :domacin="domacin"></rezervacija-prikaz>
+                        <rezervacija-prikaz v-if="displayDiv(3, red)" :key="globalKey" :rezervacija="getIndex(3, red)" :domacin="domacin" :admin="admin"></rezervacija-prikaz>
                     </div>
                     <div class="col">
-                        <rezervacija-prikaz  v-if="displayDiv(2, red)" :key="globalKey" :rezervacija="getIndex(2, red)" :domacin="domacin"></rezervacija-prikaz>
+                        <rezervacija-prikaz  v-if="displayDiv(2, red)" :key="globalKey" :rezervacija="getIndex(2, red)" :domacin="domacin" :admin="admin"></rezervacija-prikaz>
                     </div>
                     <div class="col">
-                        <rezervacija-prikaz  v-if="displayDiv(1, red)" :key="globalKey" :rezervacija="getIndex(1, red)" :domacin="domacin"></rezervacija-prikaz>
+                        <rezervacija-prikaz  v-if="displayDiv(1, red)" :key="globalKey" :rezervacija="getIndex(1, red)" :domacin="domacin" :admin="admin"></rezervacija-prikaz>
                     </div>
                 </div>
                 <div class="moj-alert alert alert-success text-center" role="alert" v-show="alert">
@@ -54,11 +58,17 @@ Vue.component('pregled-rezervacija', {
         trazi: function(){
             if(this.search == ""){
                 this.$root.$emit("izmena");
+                document.getElementById("search").focus();
+                return;
             }
             user = JSON.parse(localStorage.getItem('user'));
             header = "Bearer " + user.jwt;
+            if(this.domacin == true){
+                path = "/domacin/pretragaRezervacija"
+            }
+            else path = "/admin/pretraziRezervacije"
             axios 
-                .post("/domacin/pretragaRezervacija",{apartman: this.apartmanId, user: this.search}, {headers: {'Authorization': header}})
+                .post(path,{apartman: this.apartmanId, user: this.search}, {headers: {'Authorization': header}})
                 .then(response => {
                     this.rezervacije = response.data;
                 })
@@ -86,8 +96,12 @@ Vue.component('pregled-rezervacija', {
                     id: user.id,
                 },
             }
+            if(this.admin == true){
+                path = "/admin/getRezervacije";
+            }
+            else path = "/gost/getGostRezervacije";
             axios
-                .get("/gost/getGostRezervacije", config)
+                .get(path, config)
                 .then(response => {
                     this.rezervacije = response.data;
                     this.brojRedova = Math.ceil(this.rezervacije.length/4);
@@ -117,6 +131,10 @@ Vue.component('pregled-rezervacija', {
             this.apartmanId = this.$attrs.apartmanId;
             this.domacin = true;
             this.loadDomacin();
+        }
+        else if(this.$attrs.admin == true){
+            this.admin = true;
+            this.load();
         }
         else
         {

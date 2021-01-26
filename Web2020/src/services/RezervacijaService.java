@@ -19,6 +19,11 @@ import spark.Route;
 public class RezervacijaService {
 	private static Gson g = new Gson();
 	
+	public static Route getRezervacije = (Request request, Response response) -> {
+		response.type("application/json");
+		ArrayList<Rezervacija> ret = RezervacijaRepository.getRezervacije();
+		return g.toJson(ret);
+	};
 	public static Route odbijRezervaciju = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.body();
@@ -39,6 +44,15 @@ public class RezervacijaService {
 		Rezervacija r = RezervacijaRepository.getRezervacijaById(rez.getId());
 		r.setStatus(Status.PRIHVACENA);
 		ApartmanRepository.addRezervacijaToApartman(r.getApartmanId(), r);
+		RezervacijaRepository.saveRezervacije();
+		return g.toJson(r);
+	};
+	public static Route zavrsiRezervaciju = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		Rezervacija rez = g.fromJson(payload, Rezervacija.class);
+		Rezervacija r = RezervacijaRepository.getRezervacijaById(rez.getId());
+		r.setStatus(Status.ZAVRSENA);
 		RezervacijaRepository.saveRezervacije();
 		return g.toJson(r);
 	};
@@ -75,5 +89,19 @@ public class RezervacijaService {
 			return null;
 		}
 		return g.toJson(ret);
+	};
+	public static Route pretraziSvePoKorisniku = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		RezervacijaSearchDTO dto = g.fromJson(payload, RezervacijaSearchDTO.class);
+		ArrayList<Rezervacija> rezUser = new ArrayList<Rezervacija>();
+		try {
+			User u = UserRepository.findOne(dto.getUser());
+			rezUser = RezervacijaRepository.getRezervacijeByUserId(u.getId());
+		}
+		catch(Exception e) {
+			return null;
+		}
+		return g.toJson(rezUser);
 	};
 }

@@ -7,6 +7,10 @@ Vue.component('rezervacija-prikaz', {
             rezervacija: null,
             domacin: false,
             admin: false,
+            komentar: null,
+            errorKomentar: false,
+            errorOcena: false,
+            ocena: null,
         }
     },
     template:/*html*/`
@@ -26,7 +30,7 @@ Vue.component('rezervacija-prikaz', {
         <div class="row">
             <span>Status: <h5><b>{{rezervacija.status}}</b></h5></span>
         </div>
-        <div class="row" style="height:50px;" v-if="!domacin">
+        <div class="row" v-if="!domacin && !admin">
             <div class="col">
                 <button class="btn btn-light border mb-2" v-if="prikazOdustani()" v-on:click="potvrdi()">Odustani</button>
             </div>
@@ -34,15 +38,20 @@ Vue.component('rezervacija-prikaz', {
             </div>
             <div class="col"></div>
         </div>
-        <div class="row" style="height:50px;" v-if="domacin">
+        <div class="row" style="" v-if="domacin">
             <div class="col pr-1">
                 <button class="btn btn-light border mb-2 p-1" v-if="checkKreirana() && !checkZavrsena()" v-on:click="prihvati()">Prihvati</button>
-                <button class="btn btn-light border mb-2 p-1" v-if="checkZavrsena()">Završi</button>
+                <button class="btn btn-light border mb-2 p-1" v-if="checkZavrsena() && !isZavrsena()" v-on:click="zavrsi()">Završi</button>
             </div> 
             <div class="col pl-0">
                 <button class="btn btn-light border mb-2 p-1" v-if="checkKreiranaPrihvacena() && !checkZavrsena()" v-on:click="odbij()">Odbij</button>
             </div>
         </div>
+        <div class="row" v-if="!domacin && !admin">
+            <div class="col pr-1">
+                <button class="btn btn-light border mb-2 p-1" v-if="isZavrsena()" v-on:click="dodajKomentar()">Dodaj komentar</button>
+            </div>
+        </div> 
 
         <!-- Modal -->
         <div :id="getId()" class="modal fade" role="dialog">
@@ -68,12 +77,51 @@ Vue.component('rezervacija-prikaz', {
                 </div>
             </div>
         </div>
+
+        <div :id="getId2()" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" style="width:450px;">
+                <!-- Modal content-->
+                <div class="modal-content my-modal">
+                    <div class="modal-body">
+                        <p>Dodajte komentar</p>
+                        <textarea v-model="komentar" style="width:300px;height:150px;"></textarea>
+                        <p class="small" v-if="errorKomentar" style="color:red">Niste uneli komentar.</p>
+                        <p class="mt-1">Ocena: </p>
+                        <select style="width:100px;" v-model="ocena">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                        <p class="small" v-if="errorOcena" style="color:red">Niste uneli ocenu.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-light border mt-1" v-on:click="odustani2()">Odustani</button>
+                                </div>
+                                <div class="col"></div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-danger mt-1" v-on:click="submitKomentar">Završi</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     
     `,
     methods: {
       getId: function(){
         return "myModal" + this.rezervacija.id;
+      },
+      getId2: function(){
+        return "Modal" + this.rezervacija.id;
       },
       convertDatum: function(){
         return new Intl.DateTimeFormat('sr-Latn-RS').format(new Date(this.rezervacija.pocetniDatum));
@@ -105,23 +153,32 @@ Vue.component('rezervacija-prikaz', {
     },
       checkZavrsena: function(){
         pocetni = new Date(this.rezervacija.pocetniDatum);
-        krajnji = new Date();
-        krajnji.setDate(pocetni.getDate() + this.rezervacija.brojNocenja);
+        krajnji = new Date(this.rezervacija.pocetniDatum);
+        krajnji.setDate(krajnji.getDate() + this.rezervacija.brojNocenja);
         trenutni = new Date();
-        console.log(new Date(krajnji))
-        console.log(new Date(trenutni.setDate(trenutni.getDate() + 1)))
-        if(krajnji < trenutni.setDate(trenutni.getDate() + 1)){
+        if(krajnji < trenutni){
             return true;
         }
         else {
             return false;
         }
       },
+      isZavrsena: function(){
+        if(this.rezervacija.status == "ZAVRSENA"){
+            return true;
+        } else return false;
+      },
       potvrdi: function(){
         $('#myModal' + this.rezervacija.id).modal('show');
       },
       odustani: function(){
         $('#myModal' + this.rezervacija.id).modal('hide');
+      },
+      odustani2: function(){
+        $('#Modal' + this.rezervacija.id).modal('hide');
+      },
+      dodajKomentar: function(){
+        $('#Modal' + this.rezervacija.id).modal('show'); 
       },
       otkazi: function(){
         $('#myModal' + this.rezervacija.id).modal('hide');
@@ -160,7 +217,44 @@ Vue.component('rezervacija-prikaz', {
             .then(() => {
                 this.$root.$emit("izmena");
             }) 
-      }  
+      },
+      zavrsi: function(){
+        user = JSON.parse(localStorage.getItem('user'));  
+        userId = user.id;
+        header = "Bearer " + user.jwt;
+        axios
+            .post("/domacin/zavrsiRezervaciju", this.rezervacija, {headers: {'Authorization': header}})
+            .then(() => {
+                this.$root.$emit("izmena");
+            }) 
+      },
+      submitKomentar: function(){
+        if(this.komentar == null || this.komentar == ""){
+            this.errorKomentar = true;
+            return;
+        }
+        if(this.ocena == null || this.ocena == ""){
+            this.errorOcena = true;
+            return;
+        }
+        user = JSON.parse(localStorage.getItem('user'));  
+        userId = user.id;
+        header = "Bearer " + user.jwt;
+        komentar = {
+            apartmanId: this.rezervacija.apartmanId,
+            gostId: user.Id,
+            tekst: this.komentar,
+            ocena: this.ocena,
+        }
+        axios
+            .post("/gost/addKomentar", komentar, {headers: {'Authorization': header}})
+            .then(() => {
+
+                this.errorKomentar = false;
+                this.errorOcena = false;
+                this.$root.$emit("izmena");
+            }) 
+      }, 
     },
     mounted: function(){
         if(this.$attrs.domacin == true){

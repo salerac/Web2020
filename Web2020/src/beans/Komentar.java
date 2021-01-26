@@ -7,12 +7,20 @@ public class Komentar {
 	private int gostId;
 	private String tekst;
 	private int ocena;
+	private boolean objavljen;
 	
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public boolean isObjavljen() {
+		return objavljen;
+	}
+	public void setObjavljen(boolean objavljen) {
+		this.objavljen = objavljen;
 	}
 	public int getApartmanId() {
 		return apartmanId;

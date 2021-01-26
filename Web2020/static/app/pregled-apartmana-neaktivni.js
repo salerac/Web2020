@@ -246,14 +246,14 @@ Vue.component('pregled-apartmana-neaktivni',{
                 })
             },
         getDomacinApartmani: function(){
-            this.brojKolona = 4;
+            this.brojKolona = 3;
             if(this.$attrs.neaktivni == true){
                 axios
                 .get("/domacin/getDomacinNeaktivni", this.config)
                 .then(response => {
                     this.apartmani = response.data;
                     this.filtriraniApartmani = response.data;
-                    this.brojRedova = Math.ceil(this.apartmani.length/5);
+                    this.brojRedova = Math.ceil(this.apartmani.length/this.brojKolona);
                 })
             }
             else

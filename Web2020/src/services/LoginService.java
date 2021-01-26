@@ -201,8 +201,6 @@ public class LoginService {
 			svi.add(UserRepository.getUserById(r.getGostId()));
 		}
 		for(User u : svi) {
-			System.out.println(dto.getUser());
-			System.out.println(u.getUsername());
 			if(u.getUsername().equals(dto.getUser()) && !ret.contains(u)) {
 				ret.add(u);
 			}
@@ -213,6 +211,39 @@ public class LoginService {
 				ret.add(u);
 			}
 		}
+		}
+		catch(Exception e) {
+			return null;
+		}
+		return g.toJson(ret);
+	};
+	public static Route getAdminKorisnici = (Request request, Response response) -> {
+		response.type("application/json");
+		ArrayList<User> users = UserRepository.getUsers();
+		ArrayList<UserDTO> ret = new ArrayList<UserDTO>();
+		for(User u: users) {
+			ret.add(new UserDTO(u,null));
+		}
+		return g.toJson(ret);
+	};
+	public static Route pretraziAdminKorisnike = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		RezervacijaSearchDTO dto = g.fromJson(payload, RezervacijaSearchDTO.class);
+		ArrayList<User> svi = UserRepository.getUsers();
+		ArrayList<User> ret = new ArrayList<User>();
+		try {
+			for(User u : svi) {
+				if(u.getUsername().equals(dto.getUser()) && !ret.contains(u)) {
+					ret.add(u);
+				}
+				else if(dto.getUser().equalsIgnoreCase("zensk") && u.isPol() == true && !ret.contains(u)) {
+					ret.add(u);
+				}
+				else if(dto.getUser().equalsIgnoreCase("musk") && u.isPol() == false && !ret.contains(u)) {
+					ret.add(u);
+				}
+			}
 		}
 		catch(Exception e) {
 			return null;
@@ -295,12 +326,12 @@ public class LoginService {
 			    if(UserRepository.findOne(username) == null) {
 			    	JsonObject message = new JsonObject();
 					message.addProperty("message", "Domaćin sa datim korisničkim imenom ne postoji.");
-					halt(401, message.toString());
+					halt(403, message.toString());
 			    }
 			    else if(!UserRepository.findOne(username).getUloga().equals(Uloga.DOMACIN)) {
 			    	JsonObject message = new JsonObject();
 					message.addProperty("message", "Korisnik nije domaćin.");
-					halt(401, message.toString());
+					halt(403, message.toString());
 			    }
 			    else {
 			    UserRepository.setTrenutniUser(UserRepository.findOne(username));
@@ -310,12 +341,12 @@ public class LoginService {
 				System.out.println(e.getMessage());
 				JsonObject message = new JsonObject();
 				message.addProperty("message", "Token nije validan.");
-				halt(401, message.toString());
+				halt(403, message.toString());
 			}
 		}else {
 			JsonObject message = new JsonObject();
 			message.addProperty("message", "Token nije poslat.");
-			halt(401, message.toString());
+			halt(400, message.toString());
 		};
 	};
 	public static Filter authenticateAdmin = (Request request, Response response) -> {

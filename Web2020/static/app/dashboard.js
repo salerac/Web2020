@@ -28,12 +28,27 @@ Vue.component('dashboard', {
                         </div>
                         <div class="row pointer-cursor" v-if="gost" :ref="getRef(1)" v-on:click="selektujTab($event,1,getRef(1))">
                             <div class="col p-3 d-flex align-items-center justify-content-center">
-                                <img class="my-auto text-center" src="icons/calendar.png" style="width:30px; height:30px;">
+                                <img class="my-auto text-center" src="icons/calendar1.png" style="width:30px; height:30px;">
                             </div>
                         </div>
                         <div class="row pointer-cursor" v-if="domacin || admin"  :ref="getRef(1)" v-on:click="selektujTab($event,1,getRef(1))">
                             <div class="col p-3 d-flex align-items-center justify-content-center">
                                 <img class="my-auto text-center" src="icons/home.png" style="width:30px; height:30px;">
+                            </div>
+                        </div>
+                        <div class="row pointer-cursor" v-if="admin" :ref="getRef(2)" v-on:click="selektujTab($event,2,getRef(2))">
+                            <div class="col p-3 d-flex align-items-center justify-content-center">
+                                <img class="my-auto text-center" src="icons/calendar1.png" style="width:30px; height:30px;">
+                            </div>
+                        </div>
+                        <div class="row pointer-cursor" v-if="admin"  :ref="getRef(3)" v-on:click="selektujTab($event,3,getRef(3))">
+                            <div class="col p-3 d-flex align-items-center justify-content-center">
+                                <img class="my-auto text-center" src="icons/customer.png" style="width:30px; height:30px;">
+                            </div>
+                        </div>
+                        <div class="row pointer-cursor" v-if="admin"  :ref="getRef(4)" v-on:click="selektujTab($event,4,getRef(4))">
+                            <div class="col p-3 d-flex align-items-center justify-content-center">
+                                <img class="my-auto text-center" src="icons/sadrzaj.png" style="width:30px; height:30px;">
                             </div>
                         </div>
                         <div class="row pointer-cursor" v-if="domacin"  :ref="getRef(3)" v-on:click="selektujTab($event,3,getRef(3))">
@@ -77,6 +92,9 @@ Vue.component('dashboard', {
             }
             if(this.domacin == true){
                 return i+100; 
+            }
+            if(this.admin == true){
+                return i+200; 
             }
         },
         getNeaktivni: function(){
@@ -139,7 +157,7 @@ Vue.component('dashboard', {
         }
         else if(this.user.uloga == "ADMINISTRATOR"){
             this.admin = true;
-            this.komponente = ["licni-podaci", "pregled-apartmana"]
+            this.komponente = ["licni-podaci", "pregled-apartmana", "pregled-rezervacija","pregled-korisnika","pregled-sadrzaja"]
         }
     },
     updated: function(){

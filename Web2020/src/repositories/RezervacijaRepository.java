@@ -26,7 +26,7 @@ public class RezervacijaRepository {
 		Reader reader = Files.newBufferedReader(Paths.get(PATH));
 		Type collectionType = new TypeToken<ArrayList<Rezervacija>>(){}.getType();
 		rezervacije = gson.fromJson(reader, collectionType);
-		if(rezervacije == null) {
+		if(rezervacije == null || rezervacije.isEmpty()) {
 			rezervacije = new ArrayList<Rezervacija>();
 			globalId = 0;
 		}

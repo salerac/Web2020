@@ -1,6 +1,7 @@
 package app;
 
 import static spark.Spark.post;
+import static spark.Spark.put;
 import static spark.Spark.get;
 import static spark.Spark.delete;
 import static spark.Spark.port;
@@ -12,11 +13,13 @@ import java.io.File;
 import beans.Sadrzaj;
 import repositories.AdresaRepository;
 import repositories.ApartmanRepository;
+import repositories.KomentarRepository;
 import repositories.LokacijaRepository;
 import repositories.RezervacijaRepository;
 import repositories.SadrzajRepository;
 import repositories.UserRepository;
 import services.ApartmanService;
+import services.KomentarService;
 import services.LoginService;
 import services.RezervacijaService;
 import services.SadrzajService;
@@ -28,18 +31,8 @@ public class Main {
 		LokacijaRepository.loadLokacije();
 		ApartmanRepository.loadApartmani();
 		RezervacijaRepository.loadRezervacije();
-		Sadrzaj s1 = new Sadrzaj();
-		Sadrzaj s2 = new Sadrzaj();
-		Sadrzaj s3 = new Sadrzaj();
-		Sadrzaj s4 = new Sadrzaj();
-		s1.setNaziv("Parking");
-		s2.setNaziv("TV");
-		s3.setNaziv("Klima");
-		s4.setNaziv("Frizider");
-		SadrzajRepository.addSadrzaj(s1);
-		SadrzajRepository.addSadrzaj(s2);
-		SadrzajRepository.addSadrzaj(s3);
-		SadrzajRepository.addSadrzaj(s4);
+		SadrzajRepository.loadSadrzaji();
+		KomentarRepository.loadKomentari();
 
 
 		port(8080);
@@ -57,6 +50,7 @@ public class Main {
 			before("/*", LoginService.authenticateGost);
 			post("/postRezervacija",  ApartmanService.postRezervacija);
 			post("/editGost", LoginService.editUser);
+			post("/addKomentar", KomentarService.addKomentar);
 			get("/getGostRezervacije", LoginService.getGostRezervacije);
 			delete("/odustaniOdRezervacije", LoginService.odustaniOdRezervacije);
 		});
@@ -64,6 +58,7 @@ public class Main {
 			before("/*", LoginService.authenticateDomacin);
 			post("/odbijRezervaciju", RezervacijaService.odbijRezervaciju);
 			post("/prihvatiRezervaciju", RezervacijaService.prihvatiRezervaciju);
+			post("/zavrsiRezervaciju", RezervacijaService.zavrsiRezervaciju);
 			post("/aktivirajApartman", ApartmanService.aktivirajApartman);
 			post("/editDomacin", LoginService.editDomacin);
 			post("/pretragaRezervacija", RezervacijaService.pretraziPoKorisniku);
@@ -79,8 +74,16 @@ public class Main {
 		path("/admin", () -> {
 			before("/*", LoginService.authenticateAdmin);
 			post("/editAdmin", LoginService.editAdmin);
+			post("/pretraziRezervacije", RezervacijaService.pretraziSvePoKorisniku);
+			post("/pretraziKorisnike", LoginService.pretraziAdminKorisnike);
+			post("/dodajSadrzaj", SadrzajService.dodajSadrzaj);
+			get("/getAdminKorisnici", LoginService.getAdminKorisnici);
+			get("/filtrirajApartmane", ApartmanService.filtrirajApartmane);
 			get("/getAdminApartmani", ApartmanService.getAdminApartmani);
+			get("/getRezervacije", RezervacijaService.getRezervacije);
+			put("/editSadrzaj", SadrzajService.editSadrzaj);
 			delete("/obrisiApartmanAdmin", ApartmanService.obrisiApartmanAdmin);
+			delete("/obrisiSadrzaj", SadrzajService.deleteSadrzaj);
 		});
 	}
 

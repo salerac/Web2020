@@ -217,9 +217,9 @@ Vue.component('pregled-apartmana',{
             if(this.domacin == true){
                 getPath = "/domacin/filtrirajDomacinApartmane";
             }
-            else{
-                getPath = "/filtrirajApartmane";
-            }
+            else if(this.admin == true){
+                getPath = "/admin/filtrirajApartmane";
+            }else getPath = "/filtrirajApartmane"
             axios
                 .get(getPath, {
                     headers: this.config.headers,

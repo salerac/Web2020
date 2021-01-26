@@ -21,6 +21,7 @@ import beans.Lokacija;
 import beans.Rezervacija;
 import beans.Sadrzaj;
 import beans.Status;
+import beans.Uloga;
 import beans.User;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
@@ -62,6 +63,7 @@ public class ApartmanService{
 		ArrayList<Integer> apartmaniId = u.getApartmaniId();
 		ArrayList<Apartman> apartmani = ApartmanRepository.getDomacinNeaktivniApartmani(u.getUsername());
 		ArrayList<ApartmanResponse> ret = convertToDTO(apartmani);
+		System.out.println(ret);
 		return g.toJson(ret);
 		
 	};
@@ -286,6 +288,7 @@ public class ApartmanService{
 	public static Route filtrirajApartmane = ((Request request, Response response) -> {
 		response.type("application/json");
 		String payloadSadrzaj = request.queryParams("sadrzaj");
+		User u = UserRepository.getTrenutniUser();
 		SadrzajiDTO sadrzajDTO = g.fromJson(payloadSadrzaj, SadrzajiDTO.class);
 		ArrayList<Integer> sadrzajiId = sadrzajDTO.getSadrzaji();
 		ArrayList<Sadrzaj> sadrzaji = new ArrayList<Sadrzaj>();
@@ -302,7 +305,13 @@ public class ApartmanService{
 		catch(Exception e) {
 			tipPostoji = false;
 		}
-		ArrayList<Apartman> apartmaniPoSadrzaju = ApartmanRepository.getAktivniApartmani();
+		ArrayList<Apartman> apartmaniPoSadrzaju = new ArrayList<Apartman>();
+		if(u.getUloga().equals(Uloga.GOST)) {
+			apartmaniPoSadrzaju = ApartmanRepository.getAktivniApartmani();
+		}
+		else {
+			apartmaniPoSadrzaju = ApartmanRepository.getApartmani();
+		}
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
 			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,null);
 		}
