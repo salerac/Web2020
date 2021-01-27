@@ -30,7 +30,7 @@ Vue.component('rezervacija-prikaz', {
         <div class="row">
             <span>Cena: <b>{{rezervacija.cena}}</b> RSD</span>
         </div>
-        <div class="row">
+        <div class="row" v-if="rezervacija.user != null">
             <span>Gost: <b>{{rezervacija.user.username}}</b></span>
         </div>
         <div class="row">
