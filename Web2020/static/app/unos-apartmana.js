@@ -43,7 +43,13 @@ Vue.component('unos-apartmana', {
     `
     ,
     mounted: function(){
-        //this.globalKey++;
+        user = JSON.parse(localStorage.getItem('user'));
+        if(user == null){
+            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
+        }
+        if(user.uloga != "DOMACIN"){
+            this.$router.push({name: "unauthorized"});
+        }
         this.$root.$on('nastavi',() => {
             this.trenutnaKomponenta++;
         }),
@@ -56,8 +62,10 @@ Vue.component('unos-apartmana', {
     },
     created: function(){
         this.$root.$on('logout',() => {
-            if(!this._inactive){    
-                this.$router.push({name: "login", params: {putanja: this.$route.name}});
+            if(this.$options.name == this.$route.name){    
+                console.log("unos apartmana gura")
+                //this.$router.push({name: "login", params: {putanja: this.$route.name}});
+                this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
             }
         });
         this.$root.$on('traziLokaciju',() => {

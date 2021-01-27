@@ -5,6 +5,9 @@ Vue.component('unos-apartmana-navigacija',{
             stilNazad: 'height:50px;width:50px;opacity:0.3;',
             tekstDugmeta: 'Nastavi',
             klasa: "col p-0 border d-flex align-items-center justify-content-center bg-primary pointer-cursor",
+            alert: false,
+            alertError: false,
+            alertText: null,
         }
     },
     template: /*html*/`
@@ -15,6 +18,14 @@ Vue.component('unos-apartmana-navigacija',{
         <div :class="klasa" v-on:click="nastavi($event); proveriPoziciju();">
             <b>{{tekstDugmeta}}</b>
         </div>
+
+        <div class="moj-alert alert alert-success text-center" role="alert" v-show="alert">
+            <b>{{alertText}}</b>
+        </div>
+        <div class="moj-alert alert alert-danger text-center" role="alert" v-show="alertError">
+            <b>{{alertText}}</b>
+        </div>
+
     </div>
     `,
     mounted: function(){
@@ -49,10 +60,17 @@ Vue.component('unos-apartmana-navigacija',{
                 axios
                     .post('/domacin/addApartman', this.$attrs.apartman, {headers: {'Authorization': header}})
                     .then((response) => {
-                        this.$router.push({name: "dashboard"});
+                        this.alert = true;
+                        this.alertText = response.data['message'];
+                    setTimeout(() => {
+                        this.alert = false;
+                        this.$router.push({name: "landingPage"});
+                    }, 2000);
+                        //this.$router.push({name: "dashboard"});
                     })
                     .catch((error) => {
-
+                        this.alertError = true;
+                        this.alertText = error.response.data['message'];
                     })
             }
             else { 

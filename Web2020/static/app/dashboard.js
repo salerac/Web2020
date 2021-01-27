@@ -11,6 +11,7 @@ Vue.component('dashboard', {
             apartmanId: null,
             globalKey: 0,
             promenio: false,
+            active: false,
         }
     },
     template:/*html*/`
@@ -118,9 +119,9 @@ Vue.component('dashboard', {
     },
     created: function(){
         this.$root.$on('logout',() => {
-            if(!this._inactive){    
-                //this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
-                this.$router.push({name: "login", params: {putanja: this.$route.name}});
+            if(this.$options.name == this.$route.name){
+                this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
+                //this.$router.push({name: "login", params: {putanja: this.$route.name}});
             }
         });
         this.$root.$on("rezervacije", (id) => {
@@ -147,6 +148,9 @@ Vue.component('dashboard', {
     },
     mounted: function(){
         this.user = JSON.parse(localStorage.getItem('user'));
+        if(this.user == null){
+            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
+        }
         if(this.user.uloga == "GOST"){
             this.gost = true
             this.komponente = ["licni-podaci", "pregled-rezervacija"];
@@ -167,5 +171,11 @@ Vue.component('dashboard', {
                 this.promenio = true;
             }
         }
+    },
+    activated: function(){
+        this.active = true;
+    },
+    deactivated: function(){
+        this.active = false;
     }
 })

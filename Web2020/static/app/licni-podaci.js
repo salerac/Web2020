@@ -13,6 +13,9 @@ Vue.component('licni-podaci', {
             novaLozinka: "",
             potvrda: "",
             showPoljaError: false,
+            alert: false,
+            alertError: false,
+            alertText: null,
         }
     },
     template:/*html*/`
@@ -97,8 +100,11 @@ Vue.component('licni-podaci', {
                         <span class="small" v-if="showPoljaError" style="color:red">Morate uneti sva polja.</span>
                     </div>
                 </div>
-                <div class="moj-alert alert alert-danger text-center" role="alert">
-                    <b></b>
+                <div class="moj-alert alert alert-success text-center" role="alert" v-show="alert">
+                    <b>{{alertText}}</b>
+                </div>
+                <div class="moj-alert alert alert-danger text-center" role="alert" v-show="alertError">
+                    <b>{{alertText}}</b>
                 </div>
             </div>
             <div class="col"></div>
@@ -121,8 +127,6 @@ Vue.component('licni-podaci', {
             </div>
         </div>
         </div>
-
-        <input :value="user.id" v-on:change="logout()" style="display:none">
     </div>
     `,
     methods: {
@@ -194,11 +198,17 @@ Vue.component('licni-podaci', {
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                     this.lozinkaUneta = false;
                     this.izmena = false;
-                    this.$root.$emit("izmena");
+                    this.alert = true;
+                    this.alertText = "Korisnik izmenjen.";
+                    setTimeout(() => {
+                        this.alert = false;
+                        this.$root.$emit("izmena");
+                    }, 2000);
+                    //this.$root.$emit("izmena");
                 })
                 .catch(error => {
                     this.alertError = true;
-                    this.alertText = error.response.data['message'];
+                    this.alertText = "Izmena nije uspela.";
                 });
         }
 
@@ -213,7 +223,7 @@ Vue.component('licni-podaci', {
     },
     created: function(){
         this.$root.$on('login',() => {
-            this.izmenjenUser = this.user;
+            //this.izmenjenUser = this.user;
         })
     }
 })

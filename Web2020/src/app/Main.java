@@ -42,6 +42,7 @@ public class Main {
 		post("/registerGost", LoginService.registerGost);
 		post("/addSadrzaj", SadrzajService.addSadrzaj);
 		post("/searchApartmani",ApartmanService.searchApartman);
+		get("/getKomentari", KomentarService.getObjavljeniKomentari);
 		get("/getSadrzaji", SadrzajService.getSadrzaji);
 		get("/filtrirajApartmane", ApartmanService.filtrirajApartmane);
 		//get("/getApartmaniByTip", ApartmanService.getApartmaniByTip);
@@ -63,6 +64,9 @@ public class Main {
 			post("/editDomacin", LoginService.editDomacin);
 			post("/pretragaRezervacija", RezervacijaService.pretraziPoKorisniku);
 			post("/pretraziDomacinKorisnike", LoginService.pretraziDomacinKorisnike);
+			post("/objaviKomentar", KomentarService.objaviKomentar);
+			post("/sakrijKomentar", KomentarService.sakrijKomentar);
+			get("/getKomentari", KomentarService.getKomentariByApartmanIdDomacin);
 			get("/getDomacinKorisnici", RezervacijaService.getDomacinKorisnici);
 			get("/getDomacinApartmani", ApartmanService.getDomacinApartmani);
 			get("/getDomacinNeaktivni", ApartmanService.getDomacinNeaktivni);
@@ -77,10 +81,12 @@ public class Main {
 			post("/pretraziRezervacije", RezervacijaService.pretraziSvePoKorisniku);
 			post("/pretraziKorisnike", LoginService.pretraziAdminKorisnike);
 			post("/dodajSadrzaj", SadrzajService.dodajSadrzaj);
+			post("/registerDomacin", LoginService.registerDomacin);
 			get("/getAdminKorisnici", LoginService.getAdminKorisnici);
 			get("/filtrirajApartmane", ApartmanService.filtrirajApartmane);
 			get("/getAdminApartmani", ApartmanService.getAdminApartmani);
 			get("/getRezervacije", RezervacijaService.getRezervacije);
+			get("/getKomentari", KomentarService.getKomentariByApartmanId);
 			put("/editSadrzaj", SadrzajService.editSadrzaj);
 			delete("/obrisiApartmanAdmin", ApartmanService.obrisiApartmanAdmin);
 			delete("/obrisiSadrzaj", SadrzajService.deleteSadrzaj);

@@ -56,6 +56,14 @@ Vue.component('pregled-korisnika', {
     </div>
     `,
     mounted: function(){
+        user = JSON.parse(localStorage.getItem('user'));
+        if(user == null){
+            this.$router.push({name: "login"})
+        }
+        if(user.uloga == "GOST"){
+            console.log(localStorage.getItem("user").uloga)
+            this.$router.push({name: "unauthorized"})
+        }
        this.load();
 
     },

@@ -39,6 +39,9 @@ Vue.component('my-header', {
                         <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="!checkUser()">
                             <span class="my-auto" v-on:click="goToDashboard()">Vaš profil</span>
                         </div>
+                        <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="checkAdmin()">
+                            <span class="my-auto" v-on:click="registerDomacin()">Registrujte domaćina</span>
+                        </div>
                         <div class="row menu-item mt-1 mb-1 pointer-cursor" v-if="checkGost()">
                             <span class="my-auto" v-on:click="goToDashboardRez()">Vaše rezervacije</span>
                         </div>
@@ -83,13 +86,22 @@ Vue.component('my-header', {
             }
             else return false;
         },
+        checkAdmin: function(){
+            this.user = JSON.parse(localStorage.getItem("user"));
+            if(this.user == null) return;
+            if(this.user.uloga == "ADMINISTRATOR"){
+                return true;
+            }
+            else return false;
+        },
         toggleDrop: function(){
             this.drop = !this.drop;
         },
         login: function(){
             this.toggleDrop();
             console.log(this.$route.name)
-            this.$router.push({name: "login", params: {putanja :this.$route.name}})
+            //this.$router.push({name: "login", params: {putanja :this.$route.name}})
+            this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
         },
         logout: function(){
             this.toggleDrop();
@@ -118,6 +130,10 @@ Vue.component('my-header', {
         dodajApartman: function(){
             this.toggleDrop();
             this.$router.push({name: "unosApartmana"})
+        },
+        registerDomacin: function(){
+            this.toggleDrop();
+            this.$router.push({name: "registracija"})
         }
     } 
 })

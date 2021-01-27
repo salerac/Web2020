@@ -28,7 +28,7 @@ Vue.component("login-page", {
                 <input v-on:input="isUsernameEmpty" v-model="user.username" v-bind:class="usernameClass" placeholder="Korisničko ime">
                 <span v-if="usernameEmpty" class="error-message">Niste uneli korisničko ime.</span>
                 <div v-bind:style="styleObject"></div>
-                <input v-on:input="isPasswordEmpty" v-model="user.lozinka" v-bind:class="passwordClass" placeholder="Lozinka">
+                <input v-on:input="isPasswordEmpty" type="password" v-model="user.lozinka" v-bind:class="passwordClass" placeholder="Lozinka">
                 <span v-if="passwordEmpty" class="error-message">Niste uneli lozinku.</span>
                 <hr style="width:100%">
                 <span v-if="error!=null" class="error-message">{{error}}</span>
@@ -55,8 +55,8 @@ Vue.component("login-page", {
                     if(localStorage.getItem('user') == null){ 
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                     }
-                    this.$router.push({name: this.$route.params.putanja});
-                    //this.$router.push({path: this.$route.query.putanja});
+                    //this.$router.push({name: this.$route.params.putanja});
+                    this.$router.push({path: this.$route.query.putanja});
                     //console.log(this.$route.query.putanja);
                     //this.$root.$emit("login");
                 })

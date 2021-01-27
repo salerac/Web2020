@@ -7,6 +7,7 @@ const Rezervacija = { template: '<rezervacija></rezervacija>' }
 const Registracija = { template: '<registracija></registracija>' }
 const Dashboard = { template: '<dashboard></dashboard>' }
 const pregledKorisnika = { template: '<pregled-korisnika></pregled-korisnika>' }
+const Unauthorized = { template: '<unauthorized></unauthorized>' }
 
 const router = new VueRouter({
 	mode: 'hash',
@@ -58,6 +59,11 @@ const router = new VueRouter({
 			name: "pregledKorisnika",
 			component: pregledKorisnika,
 			props: true,
+		},
+		{
+			path: "/unauthorized",
+			name: "unauthorized",
+			component: Unauthorized
 		}
 	]
 });

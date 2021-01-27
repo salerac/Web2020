@@ -175,8 +175,13 @@ Vue.component('rezervacija',{
         }
     },
     mounted: function(){
-        if(localStorage.getItem("user") == null){
+        user = JSON.parse(localStorage.getItem('user'));
+        if(user == null){
             this.$router.push({name: "login"})
+        }
+        if(user.uloga != "GOST"){
+            console.log(localStorage.getItem("user").uloga)
+            this.$router.push({name: "unauthorized"})
         }
         else{
             this.user = JSON.parse(localStorage.getItem("user"));
@@ -186,7 +191,8 @@ Vue.component('rezervacija',{
     },
     created: function(){
         this.$root.$on('logout', () => {
-            if(!this._inactive){     
+            if(this.$options.name == this.$route.name){
+            console.log("rezervacija gura")
             this.$router.push({name: "login", query: {putanja :this.$route.fullPath}});
             }
         });

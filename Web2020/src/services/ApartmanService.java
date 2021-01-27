@@ -108,7 +108,7 @@ public class ApartmanService{
 		ApartmanDTO a = g.fromJson(payload, ApartmanDTO.class);
 		
 		ArrayList<String> slike = saveImages(a.getSlike());
-		
+		try {
 		Adresa adresa = new Adresa(a.getUlica(), a.getBroj(), a.getGrad(), a.getPostanskiBroj());
 		AdresaRepository.addAdresa(adresa);
 		
@@ -124,8 +124,18 @@ public class ApartmanService{
 		ApartmanRepository.addApartman(apartman);
 		UserRepository.getTrenutniUser().getApartmaniId().add(apartman.getId());
 		UserRepository.saveUsers();
-		
-		return request;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			response.status(400);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", "Apartman nije dodat.");
+			return message ;
+		}
+		response.status(200);
+		JsonObject message = new JsonObject();
+		message.addProperty("message", "Apartman uspešno dodat.");
+		return message ;
 		
 	};
 	public static Route obrisiApartman = (Request request, Response response) -> {

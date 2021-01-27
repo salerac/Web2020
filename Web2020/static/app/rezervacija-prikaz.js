@@ -11,6 +11,9 @@ Vue.component('rezervacija-prikaz', {
             errorKomentar: false,
             errorOcena: false,
             ocena: null,
+            alert: false,
+            alertError: false,
+            alertText: null,
         }
     },
     template:/*html*/`
@@ -112,7 +115,12 @@ Vue.component('rezervacija-prikaz', {
                 </div>
             </div>
         </div>
-
+        <div class="moj-alert alert alert-success text-center" role="alert" v-show="alert">
+            <b>{{alertText}}</b>
+        </div>
+        <div class="moj-alert alert alert-danger text-center" role="alert" v-show="alertError">
+            <b>{{alertText}}</b>
+        </div>
     </div>
     
     `,
@@ -248,11 +256,21 @@ Vue.component('rezervacija-prikaz', {
         }
         axios
             .post("/gost/addKomentar", komentar, {headers: {'Authorization': header}})
-            .then(() => {
-
+            .then((response) => {
+                this.odustani2();
                 this.errorKomentar = false;
                 this.errorOcena = false;
-                this.$root.$emit("izmena");
+                this.alert = true;
+                this.alertText = response.data['message'];
+                setTimeout(() => {
+                    this.alert = false;
+                    this.$root.$emit("izmena");
+                }, 2000);
+                //this.$root.$emit("izmena");
+            })
+            .catch(error => {
+                this.alertError = true;
+                this.alertText = error.response.data['message'];
             }) 
       }, 
     },

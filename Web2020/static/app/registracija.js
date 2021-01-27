@@ -73,7 +73,7 @@ Vue.component('registracija',{
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input class="login-input form-control form-control-good" v-model="user.lozinka" v-on:input="proveriLozinke()" placeholder="Lozinka">
+                        <input class="login-input form-control form-control-good" type="password" v-model="user.lozinka" v-on:input="proveriLozinke()" placeholder="Lozinka">
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -84,7 +84,7 @@ Vue.component('registracija',{
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input class="login-input form-control form-control-good" v-model="potvrda" v-on:input="proveriLozinke()" placeholder="Potvrda">
+                        <input class="login-input form-control form-control-good" type="password" v-model="potvrda" v-on:input="proveriLozinke()" placeholder="Potvrda">
                     </div>
                 </div>
                 <div class="row">
@@ -137,12 +137,27 @@ Vue.component('registracija',{
                 this.showPoljaError = true;
                 return;
             }
-            console.log("prosao")
+            user = JSON.parse(localStorage.getItem('user'));
+            if(user != null){  
+                header = "Bearer " + user.jwt;
+                options = {
+                    headers: {'Authorization': header}
+                }
+                path = "/admin/registerDomacin"
+            } else {
+                path = "/registerGost";
+                options = null
+            }
             axios
-                .post("/registerGost", this.user)
+                .post(path, this.user, options)
                 .then(response => {
+                    if(user != null){
+                        this.$router.push({name: "dashboard"});
+                    }
+                    else{ 
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                     this.$router.push({name: "landingPage"});
+                    }
                 })
                 .catch(error => {
                     this.alertError = true;

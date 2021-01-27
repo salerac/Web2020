@@ -70,6 +70,24 @@ public class LoginService {
 			return message;
 		}
 	};
+	public static Route registerDomacin = (Request request, Response response) -> {
+		response.type("application/json");
+		String payload = request.body();
+		User u = g.fromJson(payload, User.class);
+		u.setRezervacijeId(new ArrayList<Integer>());
+		u.setApartmaniId(new ArrayList<Integer>());
+		u.setUloga(Uloga.DOMACIN);
+		try {
+			UserRepository.addUser(u);
+			return g.toJson(u);
+		}
+		catch(Exception e) {
+			response.status(401);
+			JsonObject message = new JsonObject();
+			message.addProperty("message", e.getMessage());	
+			return message;
+		}
+	};
 	public static Route editUser = (Request request, Response response) -> {
 		response.type("application/json");
 		String payload = request.body();

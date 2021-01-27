@@ -7,6 +7,11 @@ Vue.component('apartman-prikaz', {
             myCalendar: null,
             map: null,
             marker: null,
+            config: null,
+            komentari: null,
+            user: null,
+            admin: false,
+            domacin: false,
         }
     },
     template:/*html*/`
@@ -134,14 +139,35 @@ Vue.component('apartman-prikaz', {
                                     <span>Na kalendaru su prikazani datumi tokom kojih je smeštaj dostupan. Datumi tokom kojih je smeštaj nedostupan označeni su crvenom bojom.</span>
                                 </div>
                                 <div class="row">
-                                    <button class="btn btn-info ml-2 mt-2" style="width:150px;" v-on:click="rezervisi()">Rezerviši</button>
+                                    <button class="btn btn-info ml-2 mt-2" style="width:150px;" v-if="!admin && !domacin" v-on:click="rezervisi()">Rezerviši</button>
                                 </div>
                             </div>
                             <div class="col-2"></div>
                         </div>
                         <hr/>
-                        <div class="row">
+                        <div class="row mb-3">
                             <h4><b>Komentari korisnika</b></h4>
+                        </div>
+                        <div class="row mb-3" v-for="k in komentari">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
+                                        <h5><b>{{k.user.ime}}</b></h5>
+                                    </div>
+                                    <div class="col"></div>
+                                    <div class="col-1">
+                                        <img class="my-auto text-center pointer-cursor" v-if="!k.objavljen && checkDomacinKomentari()" src="icons/checkmark.png" v-on:click="objaviKomentar(k)" style="width:20px; height:20px;">
+                                        <img class="my-auto text-center pointer-cursor" v-if="k.objavljen && checkDomacinKomentari()" src="icons/close.png" v-on:click="sakrijKomentar(k)" style="width:20px; height:20px;">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <span><b>Ocena: {{k.ocena}}</b></span>
+                                </div>
+                                <div class="row">
+                                    <span>{{k.tekst}}</span>
+                                </div>
+                            </div>
+                            <hr/>
                         </div>
                     </div>
                     <div class="col-4">
@@ -155,11 +181,27 @@ Vue.component('apartman-prikaz', {
 
     `,
     mounted: function(){
+        this.user = JSON.parse(localStorage.getItem('user'));
         let script = document.createElement('script');
         script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBMGnRyzotturmaqorihBs1rP3ztn8vT7o&libraries=places&callback=initMap';
         window.initMap = this.initMap;
         document.head.appendChild(script);
+        if(this.user != null){ 
+            if(this.user.uloga == "DOMACIN"){
+                this.domacin = true;
+            }
+            if(this.user.uloga == "ADMINISTRATOR"){
+                this.admin = true;
+            }
+            header = "Bearer " + this.user.jwt;
+            this.config = {
+                headers: {'Authorization': header},
+            }
+        }
         this.load();
+        if(this.admin || this.domacin){
+            this.loadKomentariSvi();
+        }
     },
     created: function(){
         this.$root.$on('reload',() => {
@@ -204,6 +246,49 @@ Vue.component('apartman-prikaz', {
                 this.apartman = response.data;
                 this.brojRedova = Math.ceil(this.apartman.sadrzaji.length/3);
             });
+            if(this.user == null || (!this.domacin && !this.admin)){ 
+            axios
+                .get('/getKomentari', {params: this.$route.query})
+                .then(response => {
+                    this.komentari = response.data;
+                });
+            }
+        },
+        loadKomentariSvi: function(){
+            if(this.domacin){
+                path = '/domacin/getKomentari';
+            } else path = "/admin/getKomentari";
+            axios
+            .get(path, {params: this.$route.query, headers: this.config.headers})
+            .then(response => {
+                this.komentari = response.data;
+            });
+        },
+        objaviKomentar: function(komentar){
+            if(this.domacin){
+                path = "/domacin/objaviKomentar";
+            } else path = "/admin/objaviKomentar";
+            axios
+                .post(path, komentar, this.config)
+                .then(response => {
+                    this.loadKomentariSvi();
+                })
+        },
+        sakrijKomentar: function(komentar){
+            if(this.domacin){
+                path = "/domacin/sakrijKomentar";
+            } else path = "/admin/sakrijKomentar";
+            axios
+                .post(path, komentar, this.config)
+                .then(response => {
+                    this.loadKomentariSvi();
+                })
+        },
+        checkDomacinKomentari: function(){
+            if(this.user == null) return false;
+            if(this.user.username == this.apartman.domacinUsername){
+                return true;
+            }else return false;
         },
         getStyle: function(){
             return "background-image: url('" + this.apartman.slike[0] + "');width:100%; height:100%;";
