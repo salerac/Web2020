@@ -25,7 +25,9 @@ import beans.Uloga;
 import beans.User;
 import dto.ApartmanDTO;
 import dto.SearchDTO;
+import dto.UserDTO;
 import dto.ApartmanResponse;
+import dto.ApartmanRezDTO;
 import dto.LokacijaResponse;
 import dto.SadrzajiDTO;
 import repositories.AdresaRepository;
@@ -86,9 +88,11 @@ public class ApartmanService{
 			return message ;
 		}
 		ArrayList<Integer> rezId = ApartmanRepository.getApartmanById(id).getRezervacijeId();
-		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
+		ArrayList<ApartmanRezDTO> ret = new ArrayList<ApartmanRezDTO>();
 		for(int i : rezId) {
-			ret.add(RezervacijaRepository.getRezervacijaById(i));
+			User gost = UserRepository.getUserById(RezervacijaRepository.getRezervacijaById(i).getGostId());
+			UserDTO gostDTO = new UserDTO(gost, null);
+			ret.add(new ApartmanRezDTO(RezervacijaRepository.getRezervacijaById(i), gostDTO));
 		}
 		System.out.println(ret);
 		return g.toJson(ret);

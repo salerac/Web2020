@@ -31,6 +31,9 @@ Vue.component('rezervacija-prikaz', {
             <span>Cena: <b>{{rezervacija.cena}}</b> RSD</span>
         </div>
         <div class="row">
+            <span>Gost: <b>{{rezervacija.user.username}}</b></span>
+        </div>
+        <div class="row">
             <span>Status: <h5><b>{{rezervacija.status}}</b></h5></span>
         </div>
         <div class="row" v-if="!domacin && !admin">
