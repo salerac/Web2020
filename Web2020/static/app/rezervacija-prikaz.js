@@ -55,7 +55,7 @@ Vue.component('rezervacija-prikaz', {
         </div>
         <div class="row" v-if="!domacin && !admin">
             <div class="col pr-1">
-                <button class="btn btn-light border mb-2 p-1" v-if="isZavrsena()" v-on:click="dodajKomentar()">Dodaj komentar</button>
+                <button class="btn btn-light border mb-2 p-1" v-if="isZavrsena() || checkOdbijena()" v-on:click="dodajKomentar()">Dodaj komentar</button>
             </div>
         </div> 
 
@@ -152,6 +152,14 @@ Vue.component('rezervacija-prikaz', {
           else{
               return false;
           }
+      },
+      checkOdbijena: function(){
+        if(this.rezervacija.status == "ODBIJENA"){
+            return true;
+        }
+        else{
+            return false;
+        }
       },
       checkKreiranaPrihvacena: function(){
         if(this.rezervacija.status == "KREIRANA" || this.rezervacija.status == "PRIHVACENA"){
@@ -253,7 +261,7 @@ Vue.component('rezervacija-prikaz', {
         header = "Bearer " + user.jwt;
         komentar = {
             apartmanId: this.rezervacija.apartmanId,
-            gostId: user.Id,
+            gostId: userId,
             tekst: this.komentar,
             ocena: this.ocena,
         }
