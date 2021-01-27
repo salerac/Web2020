@@ -74,9 +74,11 @@ public class RezervacijaRepository {
 		ArrayList<Rezervacija> ret = new ArrayList<Rezervacija>();
 		for(Rezervacija r : rezervacije) {
 			Apartman a = ApartmanRepository.getApartmanById(r.getApartmanId());
-			int domacinId = UserRepository.findOne(a.getDomacinUsername()).getId();
-			if(domacinId == id) {
-				ret.add(r);
+			if(a != null) {
+				int domacinId = UserRepository.findOne(a.getDomacinUsername()).getId();
+				if(domacinId == id) {
+					ret.add(r);
+				}
 			}
 		}
 		return ret;
