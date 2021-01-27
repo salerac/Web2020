@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import beans.Rezervacija;
 import beans.Status;
 import beans.User;
+import dto.ApartmanRezDTO;
 import dto.RezervacijaSearchDTO;
 import dto.UserDTO;
 import repositories.ApartmanRepository;
@@ -21,7 +22,13 @@ public class RezervacijaService {
 	
 	public static Route getRezervacije = (Request request, Response response) -> {
 		response.type("application/json");
-		ArrayList<Rezervacija> ret = RezervacijaRepository.getRezervacije();
+		ArrayList<Rezervacija> rez = RezervacijaRepository.getRezervacije();
+		ArrayList<ApartmanRezDTO> ret = new ArrayList<ApartmanRezDTO>();
+		for(Rezervacija r : rez) {
+			UserDTO u = new UserDTO(UserRepository.getUserById(r.getGostId()), null);
+			ApartmanRezDTO dto = new ApartmanRezDTO(r, u);
+			ret.add(dto);
+		}
 		return g.toJson(ret);
 	};
 	public static Route odbijRezervaciju = (Request request, Response response) -> {
