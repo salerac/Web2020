@@ -222,10 +222,10 @@ public class LoginService {
 			if(u.getUsername().equals(dto.getUser()) && !ret.contains(u)) {
 				ret.add(u);
 			}
-			else if(dto.getUser().equalsIgnoreCase("zensk") && u.isPol() == true && !ret.contains(u)) {
+			else if(dto.getUser().equalsIgnoreCase("zenski") && u.isPol() == true && !ret.contains(u)) {
 				ret.add(u);
 			}
-			else if(dto.getUser().equalsIgnoreCase("musk") && u.isPol() == false && !ret.contains(u)) {
+			else if(dto.getUser().equalsIgnoreCase("muski") && u.isPol() == false && !ret.contains(u)) {
 				ret.add(u);
 			}
 		}
@@ -255,10 +255,10 @@ public class LoginService {
 				if(u.getUsername().equals(dto.getUser()) && !ret.contains(u)) {
 					ret.add(u);
 				}
-				else if(dto.getUser().equalsIgnoreCase("zensk") && u.isPol() == true && !ret.contains(u)) {
+				else if(dto.getUser().equalsIgnoreCase("zenski") && u.isPol() == true && !ret.contains(u)) {
 					ret.add(u);
 				}
-				else if(dto.getUser().equalsIgnoreCase("musk") && u.isPol() == false && !ret.contains(u)) {
+				else if(dto.getUser().equalsIgnoreCase("muski") && u.isPol() == false && !ret.contains(u)) {
 					ret.add(u);
 				}
 			}
