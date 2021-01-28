@@ -320,11 +320,11 @@ public class ApartmanService{
 			tipPostoji = false;
 		}
 		ArrayList<Apartman> apartmaniPoSadrzaju = new ArrayList<Apartman>();
-		if(u.getUloga().equals(Uloga.GOST)) {
-			apartmaniPoSadrzaju = ApartmanRepository.getAktivniApartmani();
+		if(u != null && u.getUloga().equals(Uloga.ADMINISTRATOR)) {
+			apartmaniPoSadrzaju = ApartmanRepository.getApartmani();
 		}
 		else {
-			apartmaniPoSadrzaju = ApartmanRepository.getApartmani();
+			apartmaniPoSadrzaju = ApartmanRepository.getAktivniApartmani();
 		}
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
 			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,null);
@@ -368,15 +368,16 @@ public class ApartmanService{
 		return g.toJson(ret);
 	};
 	public static ArrayList<Apartman> filter(ArrayList<Apartman> pocetni, ArrayList<Sadrzaj> sadrzaji, boolean tip, boolean tipPostoji){
+		ArrayList<Apartman> apartmaniPoSadrzaju = new ArrayList<Apartman>();
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
-			pocetni = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,null);
+			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,pocetni);
 		}
 		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
 		if(!tipPostoji == false) {
 			apartmaniPoTipu = ApartmanRepository.getApartmaniByTip(tip, pocetni);
 		}
 		else {
-			apartmaniPoTipu = pocetni;
+			apartmaniPoTipu = apartmaniPoSadrzaju;
 		}
 		return apartmaniPoTipu;
 	}
