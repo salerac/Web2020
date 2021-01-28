@@ -372,9 +372,12 @@ public class ApartmanService{
 		if(!(sadrzaji == null || sadrzaji.isEmpty())) {
 			apartmaniPoSadrzaju = ApartmanRepository.getApartmaniBySadrzaj(sadrzaji,pocetni);
 		}
+		else {
+			apartmaniPoSadrzaju = pocetni;
+		}
 		ArrayList<Apartman> apartmaniPoTipu = new ArrayList<Apartman>();
 		if(!tipPostoji == false) {
-			apartmaniPoTipu = ApartmanRepository.getApartmaniByTip(tip, pocetni);
+			apartmaniPoTipu = ApartmanRepository.getApartmaniByTip(tip, apartmaniPoSadrzaju);
 		}
 		else {
 			apartmaniPoTipu = apartmaniPoSadrzaju;
